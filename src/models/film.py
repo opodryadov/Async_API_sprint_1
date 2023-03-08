@@ -1,4 +1,5 @@
 from pydantic import Field
+
 from src.models.base import ModelMixin, NestedModelMixin
 
 
