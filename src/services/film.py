@@ -5,11 +5,10 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from db.elastic import get_elastic
-from db.redis import get_redis
-from models.film import Film
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+from src.core import config
+from src.db.elastic import get_elastic
+from src.db.redis import get_redis
+from src.models import Film
 
 
 class FilmService:
@@ -43,7 +42,7 @@ class FilmService:
         return film
 
     async def _put_film_to_cache(self, film: Film):
-        await self.redis.set(film.id, film.json(), FILM_CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.set(film.id, film.json(), config.FILM_CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache()
