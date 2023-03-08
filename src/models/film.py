@@ -1,4 +1,3 @@
-from datetime import datetime
 from pydantic import Field
 from src.models.base import ModelMixin, NestedModelMixin
 
@@ -19,6 +18,3 @@ class Film(ModelMixin):
     actors: list[FilmPerson] | None = Field(default=list())
     writers: list[FilmPerson] | None = Field(default=list())
     directors: list[FilmPerson] | None = Field(default=list())
-    creation_date: datetime | None = Field(default=None)
-    age_limit: int | None = Field(default=None)
-    file_path: str | None = Field(default=None)
