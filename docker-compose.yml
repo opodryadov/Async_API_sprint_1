@@ -36,9 +36,9 @@ services:
       - redis
 
 volumes:
-    elasticsearch_data: null
-    elasticsearch_logs: null
-    redis_data: null
+    elasticsearch_data:
+    elasticsearch_logs:
+    redis_data:
 
 networks:
-  dev-app: null
+  dev-app:
