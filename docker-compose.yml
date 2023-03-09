@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.9.1
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+      - "xpack.security.enabled=false"
+      - "USE_SSL=false"
+    ports:
+      - "9200:9200"
+    networks:
+      - "dev-app"
+    volumes:
+      - "elasticsearch_data:/usr/share/elasticsearch/data"
+      - "elasticsearch_logs:/usr/share/elasticsearch/logs"
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - "dev-app"
+    volumes:
+      - "redis_data:/opt/redis/data"
+
+  fastapi:
+    build: .
+    ports:
+      - "8000:8000"
+    networks:
+      - "dev-app"
+    depends_on:
+      - elasticsearch
+      - redis
+
+volumes:
+    elasticsearch_data: null
+    elasticsearch_logs: null
+    redis_data: null
+
+networks:
+  dev-app: null
