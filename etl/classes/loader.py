@@ -1,9 +1,10 @@
 import json
 
+from backoff import backoff
+from constants import INDEX_SCHEMA
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from backoff import backoff
 from models import FilmworkSchema
 
 
@@ -18,15 +19,18 @@ class ElasticsearchLoader(Elasticsearch):
 
     @backoff()
     def create_index(self):
-        if not self.indices.exists(index='movies'):
-            json_data = json.loads(open('es_schema.json').read())
-            self.indices.create(index='movies', body=json_data)
+        for index, schema_path in INDEX_SCHEMA:
+            if not self.indices.exists(index=index):
+                json_data = json.loads(open(schema_path).read())
+                self.indices.create(index=index, body=json_data)
 
     @backoff()
     def load(self, data: list[FilmworkSchema]) -> None:
-        items = [{
-            '_index': 'movies',
-            '_id': item.id,
-            '_source': item.json()
-        } for item in data]
-        bulk(self, items)
+        items = [
+            {"_index": "movies", "_id": item.id, "_source": item.json()}
+            for item in data
+        ]
+        processed, errors = bulk(self, items)
+        if errors:
+            print("Migration failed: %s", errors)
+        print("Migration: processed %s errors %s", processed, errors)

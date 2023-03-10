@@ -1,12 +1,12 @@
 import logging
-from typing import Generator
 from datetime import datetime
+from typing import Generator
 
 import psycopg2
-from psycopg2.extensions import connection
-
-from query import query
 from backoff import backoff
+from psycopg2.extensions import connection
+from query import query
+
 
 logger = logging.getLogger(__name__)
 
