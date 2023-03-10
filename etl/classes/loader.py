@@ -5,8 +5,6 @@ from constants import INDEX_SCHEMA
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-from models import FilmworkSchema
-
 
 class ElasticsearchLoader(Elasticsearch):
     """
@@ -25,9 +23,9 @@ class ElasticsearchLoader(Elasticsearch):
                 self.indices.create(index=index, body=json_data)
 
     @backoff()
-    def load(self, data: list[FilmworkSchema]) -> None:
+    def load(self, index, data) -> None:
         items = [
-            {"_index": "movies", "_id": item.id, "_source": item.json()}
+            {"_index": index, "_id": item.id, "_source": item.json()}
             for item in data
         ]
         processed, errors = bulk(self, items)

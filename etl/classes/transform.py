@@ -1,6 +1,6 @@
 from backoff import backoff
 
-from models import FilmworkSchema
+from models import FilmworkSchema, PersonSchemaOut
 
 
 class DataTransform:
@@ -23,8 +23,9 @@ class DataTransform:
 
         return persons_by_role
 
-    @backoff()
-    def transform(self, film_works: list[dict]) -> list[FilmworkSchema]:
+    def gendata_film_works(
+        self, film_works: list[dict]
+    ) -> list[FilmworkSchema]:
         es_film_works = []
         roles = ("director", "actor", "writer")
 
@@ -48,3 +49,26 @@ class DataTransform:
             es_film_works.append(film)
 
         return es_film_works
+
+    def gendata_persons(self, persons: list[dict]) -> list[PersonSchemaOut]:
+        es_persons = []
+
+        for person_data in persons:
+            person = PersonSchemaOut(
+                id=person_data[0],
+                full_name=person_data[1],
+            )
+
+            es_persons.append(person)
+
+        return es_persons
+
+    def get_gendata_transform(self, index, data):
+        return {
+            "movies": self.gendata_film_works(data),
+            "persons": self.gendata_persons(data),
+        }.get(index)
+
+    @backoff()
+    def transform(self, index, data: list[list]):
+        return self.get_gendata_transform(index, data)

@@ -7,6 +7,7 @@ import psycopg2
 from classes import DataTransform, ElasticsearchLoader, PostgresExtractor
 from dotenv import load_dotenv
 from psycopg2.extras import DictCursor
+from queries import GET_FILM_WORKS_QUERY, GET_PERSONS_QUERY
 from storage import JsonFileStorage, State
 
 
@@ -32,22 +33,27 @@ if __name__ == "__main__":
 
             last_modified = state.get_state("modified")
             if last_modified is None:
-                last_modified = datetime.date(1, 1, 1)
+                last_modified = datetime.date(1, 1, 1).isoformat()
+
+            TABLES = (
+                ("movies", GET_FILM_WORKS_QUERY, (last_modified,) * 3),
+                ("persons", GET_PERSONS_QUERY, (last_modified,)),
+            )
 
             extractor = PostgresExtractor(conn)
-            film_works = extractor.extract(last_modified)
-
             transformer = DataTransform()
             loader = ElasticsearchLoader(host=os.environ.get("ES_HOST"))
 
-            for film_work in film_works:
-                data = transformer.transform(film_work)
-                loader.load(data)
-                state.set_state(
-                    "modified", datetime.datetime.now().isoformat()
-                )
+            for index, query, clause in TABLES:
+                film_works = extractor.extract(query, clause)
+                for film_work in film_works:
+                    data = transformer.transform(index, film_work)
+                    loader.load(index, data)
+                    state.set_state(
+                        "modified", datetime.datetime.now().isoformat()
+                    )
 
-                logger.info("The new row loaded: %s", data)
+                    logger.info("The new row loaded: %s", data)
 
         conn.close()
         time.sleep(float(os.environ.get("INTERVAL")))

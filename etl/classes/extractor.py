@@ -1,11 +1,9 @@
 import logging
-from datetime import datetime
 from typing import Generator
 
 import psycopg2
 from backoff import backoff
 from psycopg2.extensions import connection
-from query import query
 
 
 logger = logging.getLogger(__name__)
@@ -21,10 +19,10 @@ class PostgresExtractor:
         self.connection = conn
 
     @backoff()
-    def extract(self, last_modified: datetime) -> Generator:
+    def extract(self, query, clause) -> Generator:
         try:
             with self.connection.cursor() as cursor:
-                cursor.execute(query, (last_modified,) * 3)
+                cursor.execute(query, clause)
                 while data := cursor.fetchmany(200):
                     yield data
 
