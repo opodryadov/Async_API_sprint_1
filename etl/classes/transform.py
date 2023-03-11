@@ -50,7 +50,7 @@ class DataTransform:
 
         return es_film_works
 
-    def gendata_persons(self, persons: list[dict]) -> list[PersonSchemaOut]:
+    def gendata_persons(self, persons: list[list]) -> list[PersonSchemaOut]:
         es_persons = []
 
         for person_data in persons:
@@ -63,12 +63,12 @@ class DataTransform:
 
         return es_persons
 
-    def get_gendata_transform(self, index, data):
+    def get_gendata_transform(self, index: str, data: list[list]):
         return {
             "movies": self.gendata_film_works,
             "persons": self.gendata_persons,
         }[index](data)
 
     @backoff()
-    def transform(self, index, data: list[list]):
+    def transform(self, index: str, data: list[list]):
         return self.get_gendata_transform(index, data)

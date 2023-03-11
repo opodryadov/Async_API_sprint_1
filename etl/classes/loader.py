@@ -1,9 +1,13 @@
 import json
+import logging
 
 from backoff import backoff
 from constants import INDEX_SCHEMA
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
+
+
+logger = logging.getLogger(__name__)
 
 
 class ElasticsearchLoader(Elasticsearch):
@@ -23,12 +27,12 @@ class ElasticsearchLoader(Elasticsearch):
                 self.indices.create(index=index, body=json_data)
 
     @backoff()
-    def load(self, index, data) -> None:
+    def load(self, index: str, data: list) -> None:
         items = [
             {"_index": index, "_id": item.id, "_source": item.json()}
             for item in data
         ]
         processed, errors = bulk(self, items)
         if errors:
-            print("Migration failed: %s", errors)
-        print("Migration: processed %s errors %s", processed, errors)
+            logger.error("Migration failed: %s", errors)
+        logger.info("Migration: processed %s errors %s", processed, errors)

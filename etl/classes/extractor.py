@@ -3,6 +3,7 @@ from typing import Generator
 
 import psycopg2
 from backoff import backoff
+from constants import CHANK
 from psycopg2.extensions import connection
 
 
@@ -19,11 +20,11 @@ class PostgresExtractor:
         self.connection = conn
 
     @backoff()
-    def extract(self, query, clause) -> Generator:
+    def extract(self, query: str, clause: tuple) -> Generator:
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query, clause)
-                while data := cursor.fetchmany(200):
+                while data := cursor.fetchmany(CHANK):
                     yield data
 
         except psycopg2.Error as err:
