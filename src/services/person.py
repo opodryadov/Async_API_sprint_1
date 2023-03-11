@@ -1,11 +1,16 @@
+import logging
 from typing import Optional
 
+import orjson
 from elasticsearch import NotFoundError
 
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
 from src.core import config
 from src.models import Person
+
+
+logger = logging.getLogger(__name__)
 
 
 class PersonService:
@@ -25,10 +30,14 @@ class PersonService:
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
-            doc = await self.elastic.es.get("persons", person_id)
+            doc = await self.elastic.es.get(index="persons", id=person_id)
         except NotFoundError:
+            logger.error(
+                "Person was not found in ES: %s", person_id, exc_info=True
+            )
             return None
-        return Person(**doc["_source"])
+        person = Person(**doc["_source"])
+        return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:
         data = await self.redis.redis.get(person_id)
@@ -40,5 +49,7 @@ class PersonService:
 
     async def _put_person_to_cache(self, person: Person):
         await self.redis.redis.set(
-            person.id, person.json(), config.CACHE_EXPIRE_IN_SECONDS
+            person.id,
+            person.json(by_alias=True),
+            config.CACHE_EXPIRE_IN_SECONDS,
         )
