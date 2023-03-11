@@ -28,6 +28,6 @@ GET_FILM_WORKS_QUERY = """
     """
 
 GET_PERSONS_QUERY = """
-SELECT id, name FROM content.genre 
+SELECT id, full_name FROM content.person 
 WHERE updated_at > %s ORDER BY updated_at
 """
