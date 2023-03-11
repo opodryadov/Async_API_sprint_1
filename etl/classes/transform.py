@@ -65,9 +65,9 @@ class DataTransform:
 
     def get_gendata_transform(self, index, data):
         return {
-            "movies": self.gendata_film_works(data),
-            "persons": self.gendata_persons(data),
-        }.get(index)
+            "movies": self.gendata_film_works,
+            "persons": self.gendata_persons,
+        }[index](data)
 
     @backoff()
     def transform(self, index, data: list[list]):
