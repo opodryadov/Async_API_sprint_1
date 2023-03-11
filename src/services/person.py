@@ -2,9 +2,9 @@ from typing import Optional
 
 from elasticsearch import NotFoundError
 
+from src.common.connectors.es import ESConnector
+from src.common.connectors.redis import RedisConnector
 from src.core import config
-from src.db.elastic import ESConnector
-from src.db.redis import RedisConnector
 from src.models import Person
 
 
@@ -14,12 +14,6 @@ class PersonService:
         self.elastic = ESConnector()
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
-        print(self.redis.__dir__())
-        print(await self.redis.redis.ping())
-        await self.redis.redis.set("my-key", "value")
-        value = await self.redis.redis.get("my-key")
-        print(value)
-
         person = await self._person_from_cache(person_id)
         if not person:
             person = await self._get_person_elastic(person_id)
@@ -46,5 +40,5 @@ class PersonService:
 
     async def _put_person_to_cache(self, person: Person):
         await self.redis.redis.set(
-            person.uuid, person.json(), config.CACHE_EXPIRE_IN_SECONDS
+            person.id, person.json(), config.CACHE_EXPIRE_IN_SECONDS
         )

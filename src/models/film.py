@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from src.models.base import ModelMixin, NestedModelMixin
+from src.models.base import IdModelMixin, NestedModelMixin, ORDJSONModelMixin
 
 
 class FilmPerson(NestedModelMixin):
@@ -11,7 +11,7 @@ class FilmGenre(NestedModelMixin):
     name: str
 
 
-class Film(ModelMixin):
+class Film(IdModelMixin, ORDJSONModelMixin):
     title: str
     imdb_rating: float | None = Field(default=0.0)
     description: str | None = Field(default="")

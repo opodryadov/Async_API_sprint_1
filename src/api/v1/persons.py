@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.models import ModelMixin
+from src.models.base import ORDJSONModelMixin
 from src.services.person import PersonService
 
 
@@ -17,8 +17,11 @@ async def search_persons(
     pass
 
 
-class PersonAPI(ModelMixin):
+class PersonAPI(ORDJSONModelMixin):
+    uuid: str
     full_name: str
+    # role: str
+    # film_ids: list[str] | None = Field(default=list())
 
 
 @router.get("/{person_id}", response_model=PersonAPI)
