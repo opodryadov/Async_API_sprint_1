@@ -15,7 +15,7 @@ CACHE_EXPIRE_IN_SECONDS = int(
     os.getenv("CACHE_EXPIRE_IN_SECONDS", default=60 * 5)
 )
 
-ELASTIC_HOST = os.getenv("ELASTIC_HOST", "elasticsearch")
+ELASTIC_HOST = os.getenv("ELASTIC_HOST", "es")
 ELASTIC_PORT = int(os.getenv("ELASTIC_PORT", 9200))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -19,9 +19,6 @@ class ESConnector:
     async def setup(cls):
         cls.es = AsyncElasticsearch(
             hosts=[f"http://{config.ELASTIC_HOST}:{config.ELASTIC_PORT}"],
-            sniff_on_start=True,
-            sniff_on_connection_fail=True,
-            sniffer_timeout=60,
         )
 
     @classmethod
