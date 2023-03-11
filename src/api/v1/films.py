@@ -3,7 +3,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from services.film import FilmService, get_film_service
+from src.services.film import FilmService
 
 
 router = APIRouter()
@@ -22,7 +22,7 @@ class Film(BaseModel):
     response_description="Название фильма и его id",
 )
 async def film_details(
-    film_id: str, film_service: FilmService = Depends(get_film_service)
+    film_id: str, film_service: FilmService = Depends(FilmService)
 ) -> Film:
     film = await film_service.get_by_id(film_id)
     if not film:

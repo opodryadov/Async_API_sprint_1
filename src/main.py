@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from api.v1 import films, genres, persons
-from core import config
+from core import base
 from core.logger import LOGGING
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
@@ -35,8 +35,8 @@ app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=config.HOST,
-        port=config.PORT,
+        host=base.PROJECT_HOST,
+        port=base.PROJECT_PORT,
         log_config=LOGGING,
         log_level=logging.DEBUG,
     )

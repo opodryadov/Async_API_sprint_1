@@ -1,20 +1,17 @@
-from functools import lru_cache
 from typing import Optional
 
-from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from fastapi import Depends
+from elasticsearch import NotFoundError
 
-from src.core import config
-from src.db.elastic import get_elastic
-from src.db.redis import get_redis
+from src import core
+from src.common.connectors.es import ESConnector
+from src.common.connectors.redis import RedisConnector
 from src.models import Genre
 
 
 class GenreService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
-        self.elastic = elastic
+    def __init__(self):
+        self.redis = RedisConnector()
+        self.elastic = ESConnector()
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
         genre = await self._genre_from_cache(genre_id)
@@ -28,13 +25,13 @@ class GenreService:
 
     async def _get_genre_elastic(self, genre_id: str) -> Optional[Genre]:
         try:
-            doc = await self.elastic.get("genres", genre_id)
+            doc = await self.elastic.es.get("genres", genre_id)
         except NotFoundError:
             return None
         return Genre(**doc["_source"])
 
     async def _genre_from_cache(self, genre_id: str) -> Optional[Genre]:
-        data = await self.redis.get(genre_id)
+        data = await self.redis.redis.get(genre_id)
         if not data:
             return None
 
@@ -42,14 +39,6 @@ class GenreService:
         return genre
 
     async def _put_genre_to_cache(self, genre: Genre):
-        await self.redis.set(
-            genre.uuid, genre.json(), config.CACHE_EXPIRE_IN_SECONDS
+        await self.redis.redis.set(
+            genre.id, genre.json(), core.CACHE_EXPIRE_IN_SECONDS
         )
-
-
-@lru_cache()
-def get_genre_service(
-    redis: Redis = Depends(get_redis),
-    elastic: AsyncElasticsearch = Depends(get_elastic),
-) -> GenreService:
-    return GenreService(redis, elastic)

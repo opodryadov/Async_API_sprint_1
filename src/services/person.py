@@ -1,12 +1,11 @@
 import logging
 from typing import Optional
 
-import orjson
 from elasticsearch import NotFoundError
 
+from src import core
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
-from src.core import config
 from src.models import Person
 
 
@@ -51,5 +50,5 @@ class PersonService:
         await self.redis.redis.set(
             person.id,
             person.json(by_alias=True),
-            config.CACHE_EXPIRE_IN_SECONDS,
+            core.CACHE_EXPIRE_IN_SECONDS,
         )

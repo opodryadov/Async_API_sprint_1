@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 
-from src.services.genre import GenreService, get_genre_service
+from src.services.genre import GenreService
 
 
 router = APIRouter()
@@ -10,13 +10,13 @@ router = APIRouter()
 async def genre_details(
     request: Request,
     genre_id: str,
-    genre_service: GenreService = Depends(get_genre_service),
+    genre_service: GenreService = Depends(GenreService),
 ):
     pass
 
 
 @router.get("/")
 async def list_genres(
-    request: Request, genre_service: GenreService = Depends(get_genre_service)
+    request: Request, genre_service: GenreService = Depends(GenreService)
 ):
     pass
