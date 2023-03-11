@@ -5,5 +5,5 @@ from src.models.base import IdModelMixin, ORDJSONModelMixin
 
 class Person(IdModelMixin, ORDJSONModelMixin):
     full_name: str
-    # role: str
+    role: str | None = Field(default="")
     film_ids: list[str] | None = Field(default=list())

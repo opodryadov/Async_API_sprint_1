@@ -21,7 +21,7 @@ async def search_persons(
 class PersonOut(ORDJSONModelMixin):
     uuid: str = Field(alias="id")
     full_name: str
-    # role: str
+    role: str
     film_ids: list[str] | None = Field(default=list())
 
 

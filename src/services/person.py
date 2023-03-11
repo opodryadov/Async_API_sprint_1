@@ -37,6 +37,7 @@ class PersonService:
                 for movie in person_role_actors_movies["hits"]["hits"]
             ]
             person = await self._get_person_elastic(person_id)
+            person.role = "actor"
             person.film_ids = [movie.get("id") for movie in movies]
             if not person:
                 return None
