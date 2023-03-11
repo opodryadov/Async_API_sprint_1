@@ -22,15 +22,17 @@ class PersonOut(ORDJSONModelMixin):
     uuid: str = Field(alias="id")
     full_name: str
     # role: str
-    # film_ids: list[str] | None = Field(default=list())
+    film_ids: list[str] | None = Field(default=list())
 
 
 @router.get("/{person_id}", response_model=PersonOut)
 async def person_details(
+    request: Request,
     person_id: str,
     person_service: PersonService = Depends(PersonService),
 ) -> PersonOut:
-    person = await person_service.get_by_id(person_id)
+    query = dict(person_id=person_id, request=request, index="persons")
+    person = await person_service.get_by_id(query)
     if not person:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"

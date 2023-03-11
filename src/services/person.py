@@ -17,10 +17,27 @@ class PersonService:
         self._redis = RedisConnector()
         self._elastic = ESConnector()
 
-    async def get_by_id(self, person_id: str) -> Optional[Person]:
+    async def get_by_id(self, query: dict) -> Optional[Person]:
+        person_id: str = query.get("person_id")
         person = await self._person_from_cache(person_id)
         if not person:
+            body = {
+                "query": {
+                    "nested": {
+                        "path": "actors",
+                        "query": {"match": {"actors.id": f"{person_id}"}},
+                    }
+                }
+            }
+            person_role_actors_movies = await self._elastic.es.search(
+                index="movies", body=body
+            )
+            movies = [
+                movie["_source"]
+                for movie in person_role_actors_movies["hits"]["hits"]
+            ]
             person = await self._get_person_elastic(person_id)
+            person.film_ids = [movie.get("id") for movie in movies]
             if not person:
                 return None
             await self._put_person_to_cache(person)
