@@ -1,9 +1,9 @@
 from functools import lru_cache
 from typing import Optional
 
+from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
-from redis.asyncio import Redis
 
 from src.core import config
 from src.db.elastic import get_elastic

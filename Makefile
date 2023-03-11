@@ -8,3 +8,9 @@ isort:
 	isort .
 
 linters: isort black flake8
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down -V
