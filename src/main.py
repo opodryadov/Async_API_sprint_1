@@ -22,7 +22,7 @@ app = FastAPI(
     ],
     title="Read-only API для онлайн-кинотеатра",
     description="Информация о фильмах, жанрах и людях, участвовавших в создании произведения",
-    docs_url="/api/openapi",
+    docs_url="/swagger",
     openapi_url="/api/openapi.json",
     default_response_class=ORJSONResponse,
     version="1.0.0",
