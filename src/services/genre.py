@@ -10,8 +10,8 @@ from src.models import Genre
 
 class GenreService:
     def __init__(self):
-        self.redis = RedisConnector()
-        self.elastic = ESConnector()
+        self._redis = RedisConnector()
+        self._elastic = ESConnector()
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
         genre = await self._genre_from_cache(genre_id)
@@ -25,13 +25,13 @@ class GenreService:
 
     async def _get_genre_elastic(self, genre_id: str) -> Optional[Genre]:
         try:
-            doc = await self.elastic.es.get("genres", genre_id)
+            doc = await self._elastic.es.get("genres", genre_id)
         except NotFoundError:
             return None
         return Genre(**doc["_source"])
 
     async def _genre_from_cache(self, genre_id: str) -> Optional[Genre]:
-        data = await self.redis.redis.get(genre_id)
+        data = await self._redis.redis.get(genre_id)
         if not data:
             return None
 
@@ -39,6 +39,6 @@ class GenreService:
         return genre
 
     async def _put_genre_to_cache(self, genre: Genre):
-        await self.redis.redis.set(
+        await self._redis.redis.set(
             genre.id, genre.json(), core.CACHE_EXPIRE_IN_SECONDS
         )

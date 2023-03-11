@@ -10,8 +10,8 @@ from src.models import Film
 
 class FilmService:
     def __init__(self):
-        self.redis = RedisConnector()
-        self.elastic = ESConnector()
+        self._redis = RedisConnector()
+        self._elastic = ESConnector()
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
         film = await self._film_from_cache(film_id)
@@ -25,13 +25,13 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
-            doc = await self.elastic.es.get("movies", film_id)
+            doc = await self._elastic.es.get("movies", film_id)
         except NotFoundError:
             return None
         return Film(**doc["_source"])
 
     async def _film_from_cache(self, film_id: str) -> Optional[Film]:
-        data = await self.redis.redis.get(film_id)
+        data = await self._redis.redis.get(film_id)
         if not data:
             return None
 
@@ -39,6 +39,6 @@ class FilmService:
         return film
 
     async def _put_film_to_cache(self, film: Film):
-        await self.redis.redis.set(
+        await self._redis.redis.set(
             film.id, film.json(), core.FILM_CACHE_EXPIRE_IN_SECONDS
         )

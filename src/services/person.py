@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 class PersonService:
     def __init__(self):
-        self.redis = RedisConnector()
-        self.elastic = ESConnector()
+        self._redis = RedisConnector()
+        self._elastic = ESConnector()
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
         person = await self._person_from_cache(person_id)
@@ -29,7 +29,7 @@ class PersonService:
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
-            doc = await self.elastic.es.get(index="persons", id=person_id)
+            doc = await self._elastic.es.get(index="persons", id=person_id)
         except NotFoundError:
             logger.error(
                 "Person was not found in ES: %s", person_id, exc_info=True
@@ -39,7 +39,7 @@ class PersonService:
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-        data = await self.redis.redis.get(person_id)
+        data = await self._redis.redis.get(person_id)
         if not data:
             return None
 
@@ -47,7 +47,7 @@ class PersonService:
         return person
 
     async def _put_person_to_cache(self, person: Person):
-        await self.redis.redis.set(
+        await self._redis.redis.set(
             person.id,
             person.json(by_alias=True),
             core.CACHE_EXPIRE_IN_SECONDS,
