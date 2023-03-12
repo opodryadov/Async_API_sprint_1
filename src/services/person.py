@@ -28,7 +28,6 @@ class PersonService:
         return person
 
     async def _get_films_ids_by_actor(self, person_id: str):
-        role = None
         body = {
             "query": {
                 "nested": {
@@ -38,16 +37,14 @@ class PersonService:
             }
         }
         actor_movies = await self._elastic.es.search(index="movies", body=body)
-        movies_ids = [
-            movie["_source"]["id"] for movie in actor_movies["hits"]["hits"]
-        ]
-        if movies_ids:
-            role = PersonRole.ACTOR
+        movies = {
+            movie["_source"]["id"]: PersonRole.ACTOR
+            for movie in actor_movies["hits"]["hits"]
+        }
 
-        return movies_ids, role
+        return movies
 
     async def _get_films_ids_by_writer(self, person_id: str):
-        role = None
         body = {
             "query": {
                 "nested": {
@@ -59,16 +56,15 @@ class PersonService:
         writer_movies = await self._elastic.es.search(
             index="movies", body=body
         )
-        movies_ids = [
-            movie["_source"]["id"] for movie in writer_movies["hits"]["hits"]
-        ]
-        if movies_ids:
-            role = PersonRole.WRITER
+        movies = {
+            movie["_source"]["id"]: PersonRole.WRITER
+            for movie in writer_movies["hits"]["hits"]
+        }
 
-        return movies_ids, role
+        return movies
 
     async def _get_films_ids_by_director(self, person_id: str):
-        role = None
+        movies = None
         body = {
             "query": {
                 "nested": {
@@ -80,38 +76,53 @@ class PersonService:
         director_movies = await self._elastic.es.search(
             index="movies", body=body
         )
-        movies_ids = [
-            movie["_source"]["id"] for movie in director_movies["hits"]["hits"]
-        ]
-        if movies_ids:
-            role = PersonRole.DIRECTOR
+        movies = {
+            movie["_source"]["id"]: PersonRole.DIRECTOR
+            for movie in director_movies["hits"]["hits"]
+        }
 
-        return movies_ids, role
+        return movies
 
     async def _get_films_ids_by_role(self, person_id: str):
-        (
-            movies_ids_by_director,
-            role_director,
-        ) = await self._get_films_ids_by_director(person_id)
-        (
-            movies_ids_by_writer,
-            role_writer,
-        ) = await self._get_films_ids_by_writer(person_id)
-        movies_ids_by_actor, role_actor = await self._get_films_ids_by_actor(
-            person_id
-        )
+        movies_director = await self._get_films_ids_by_director(person_id)
+        movies_writer = await self._get_films_ids_by_writer(person_id)
+        movies_actor = await self._get_films_ids_by_actor(person_id)
 
-        movies_ids = list(
-            set(
-                movies_ids_by_actor
-                + movies_ids_by_writer
-                + movies_ids_by_director
-            )
-        )
-        role = [
-            role for role in (role_director, role_writer, role_actor) if role
-        ][0]
-        return movies_ids, role
+        print(movies_actor)
+        print(movies_writer)
+        print(movies_director)
+
+        movies = dict()
+
+        if not movies_actor and not movies_writer and not movies_actor:
+            return []
+        if movies_actor:
+            for key, value in movies_actor.items():
+                if key not in movies.keys():
+                    movies[key] = [value]
+                else:
+                    mov_val = movies[key]
+                    mov_val.append(value)
+                    movies.update({key: mov_val})
+        if movies_writer:
+            for key, value in movies_writer.items():
+                if key not in movies.keys():
+                    movies[key] = [value]
+                else:
+                    mov_val = movies[key]
+                    mov_val.append(value)
+                    movies.update({key: mov_val})
+        if movies_director:
+            for key, value in movies_director.items():
+                if key not in movies.keys():
+                    movies[key] = [value]
+                else:
+                    mov_val = movies[key]
+                    mov_val.append(value)
+                    movies.update({key: mov_val})
+        print(movies)
+
+        return movies
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
@@ -122,9 +133,10 @@ class PersonService:
             )
             return None
         person = Person(**doc["_source"])
-        film_ids, role = await self._get_films_ids_by_role(person_id)
-        person.role = role
-        person.film_ids = film_ids
+        films = await self._get_films_ids_by_role(person_id)
+        person.films = [
+            dict(uuid=key, roles=value) for key, value in films.items()
+        ]
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:

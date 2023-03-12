@@ -1,17 +1,12 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 
+from src.models import Film
 from src.services.film import FilmService
 
 
 router = APIRouter()
-
-
-class Film(BaseModel):
-    id: str
-    title: str
 
 
 @router.get(
@@ -30,4 +25,4 @@ async def film_details(
             status_code=HTTPStatus.NOT_FOUND, detail="film not found"
         )
 
-    return Film(id=film.id, title=film.title)
+    return Film(**film.dict())
