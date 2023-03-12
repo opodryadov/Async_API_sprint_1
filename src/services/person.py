@@ -88,39 +88,18 @@ class PersonService:
         movies_writer = await self._get_films_ids_by_writer(person_id)
         movies_actor = await self._get_films_ids_by_actor(person_id)
 
-        print(movies_actor)
-        print(movies_writer)
-        print(movies_director)
-
-        movies = dict()
-
         if not movies_actor and not movies_writer and not movies_actor:
             return []
-        if movies_actor:
-            for key, value in movies_actor.items():
+        movies = dict()
+
+        for movie in (movies_actor, movies_writer, movies_director):
+            for key, value in movie.items():
                 if key not in movies.keys():
                     movies[key] = [value]
                 else:
-                    mov_val = movies[key]
-                    mov_val.append(value)
-                    movies.update({key: mov_val})
-        if movies_writer:
-            for key, value in movies_writer.items():
-                if key not in movies.keys():
-                    movies[key] = [value]
-                else:
-                    mov_val = movies[key]
-                    mov_val.append(value)
-                    movies.update({key: mov_val})
-        if movies_director:
-            for key, value in movies_director.items():
-                if key not in movies.keys():
-                    movies[key] = [value]
-                else:
-                    mov_val = movies[key]
-                    mov_val.append(value)
-                    movies.update({key: mov_val})
-        print(movies)
+                    roles = movies[key]
+                    roles.append(value)
+                    movies.update({key: roles})
 
         return movies
 
