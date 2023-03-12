@@ -18,7 +18,7 @@ async def test_get_person_by_id(test_client, monkeypatch):
     response = await test_client.get(f"/api/v1/persons/{person_id}")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        "id": person_id,
+        "uuid": person_id,
         "full_name": "Jennifer Hale",
         "role": "actor",
         "film_ids": [
@@ -36,7 +36,7 @@ async def test_get_person_by_id(test_client, monkeypatch):
     response = await test_client.get(f"/api/v1/persons/{person_id}")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        "id": person_id,
+        "uuid": person_id,
         "full_name": "Jennifer Hale",
         "role": "actor",
         "film_ids": [

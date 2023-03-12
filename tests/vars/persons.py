@@ -6,7 +6,7 @@ class MockRedis:
         self, monkeypatch, person_id: str = None, in_cache: bool = True
     ):
         resp = {
-            "id": person_id,
+            "uuid": person_id,
             "full_name": "Jennifer Hale",
             "role": "actor",
             "film_ids": [
