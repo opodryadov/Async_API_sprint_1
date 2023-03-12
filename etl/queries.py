@@ -1,4 +1,4 @@
-query = """
+GET_FILM_WORKS_QUERY = """
     SELECT
         fw.id,
         fw.title,
@@ -26,3 +26,8 @@ query = """
     WHERE fw.updated_at > %s OR p.updated_at > %s OR g.updated_at > %s
     GROUP BY fw.id
     """
+
+GET_PERSONS_QUERY = """
+SELECT id, full_name FROM content.person 
+WHERE updated_at > %s ORDER BY updated_at
+"""
