@@ -23,6 +23,7 @@ class PersonService:
             person = await self._get_person_elastic(person_id)
             if not person:
                 return None
+            person = await self._enrich_person(person)
             await self._put_person_to_cache(person)
 
         return person
@@ -87,10 +88,10 @@ class PersonService:
         movies_director = await self._get_films_ids_by_director(person_id)
         movies_writer = await self._get_films_ids_by_writer(person_id)
         movies_actor = await self._get_films_ids_by_actor(person_id)
+        movies = dict()
 
         if not movies_actor and not movies_writer and not movies_actor:
-            return []
-        movies = dict()
+            return movies
 
         for movie in (movies_actor, movies_writer, movies_director):
             for key, value in movie.items():
@@ -112,7 +113,10 @@ class PersonService:
             )
             return None
         person = Person(**doc["_source"])
-        films = await self._get_films_ids_by_role(person_id)
+        return person
+
+    async def _enrich_person(self, person: Person) -> Optional[Person]:
+        films = await self._get_films_ids_by_role(person.id)
         person.films = [
             dict(uuid=key, roles=value) for key, value in films.items()
         ]
