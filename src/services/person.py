@@ -6,7 +6,7 @@ from elasticsearch import NotFoundError
 from src import core
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
-from src.models import Person
+from src.models import Person, PersonRole
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,7 @@ class PersonService:
         return person
 
     async def _get_films_ids_by_actor(self, person_id: str):
+        role = None
         body = {
             "query": {
                 "nested": {
@@ -40,7 +41,77 @@ class PersonService:
         movies_ids = [
             movie["_source"]["id"] for movie in actor_movies["hits"]["hits"]
         ]
-        return movies_ids
+        if movies_ids:
+            role = PersonRole.ACTOR
+
+        return movies_ids, role
+
+    async def _get_films_ids_by_writer(self, person_id: str):
+        role = None
+        body = {
+            "query": {
+                "nested": {
+                    "path": "writers",
+                    "query": {"match": {"writers.id": f"{person_id}"}},
+                }
+            }
+        }
+        writer_movies = await self._elastic.es.search(
+            index="movies", body=body
+        )
+        movies_ids = [
+            movie["_source"]["id"] for movie in writer_movies["hits"]["hits"]
+        ]
+        if movies_ids:
+            role = PersonRole.WRITER
+
+        return movies_ids, role
+
+    async def _get_films_ids_by_director(self, person_id: str):
+        role = None
+        body = {
+            "query": {
+                "nested": {
+                    "path": "directors",
+                    "query": {"match": {"directors.id": f"{person_id}"}},
+                }
+            }
+        }
+        director_movies = await self._elastic.es.search(
+            index="movies", body=body
+        )
+        movies_ids = [
+            movie["_source"]["id"] for movie in director_movies["hits"]["hits"]
+        ]
+        if movies_ids:
+            role = PersonRole.DIRECTOR
+
+        return movies_ids, role
+
+    async def _get_films_ids_by_role(self, person_id: str):
+        (
+            movies_ids_by_director,
+            role_director,
+        ) = await self._get_films_ids_by_director(person_id)
+        (
+            movies_ids_by_writer,
+            role_writer,
+        ) = await self._get_films_ids_by_writer(person_id)
+        movies_ids_by_actor, role_actor = await self._get_films_ids_by_actor(
+            person_id
+        )
+
+        movies_ids = list(
+            set(
+                movies_ids_by_actor
+                + movies_ids_by_writer
+                + movies_ids_by_director
+            )
+        )
+        role = [
+            role for role in (role_director, role_writer, role_actor) if role
+        ][0]
+        return movies_ids, role
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
@@ -51,8 +122,9 @@ class PersonService:
             )
             return None
         person = Person(**doc["_source"])
-        person.role = "actor"
-        person.film_ids = await self._get_films_ids_by_actor(person_id)
+        film_ids, role = await self._get_films_ids_by_role(person_id)
+        person.role = role
+        person.film_ids = film_ids
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:

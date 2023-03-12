@@ -1,6 +1,14 @@
+from enum import Enum
+
 from pydantic import Field
 
 from src.models.base import IdModelMixin, ORDJSONModelMixin
+
+
+class PersonRole(str, Enum):
+    DIRECTOR = "director"
+    WRITER = "writer"
+    ACTOR = "actor"
 
 
 class Person(IdModelMixin, ORDJSONModelMixin):
