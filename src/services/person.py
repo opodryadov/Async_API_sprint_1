@@ -17,33 +17,30 @@ class PersonService:
         self._redis = RedisConnector()
         self._elastic = ESConnector()
 
-    async def get_by_id(self, query: dict) -> Optional[Person]:
-        person_id: str = query.get("person_id")
+    async def get_by_id(self, person_id) -> Optional[Person]:
         person = await self._person_from_cache(person_id)
         if not person:
-            body = {
-                "query": {
-                    "nested": {
-                        "path": "actors",
-                        "query": {"match": {"actors.id": f"{person_id}"}},
-                    }
-                }
-            }
-            person_role_actors_movies = await self._elastic.es.search(
-                index="movies", body=body
-            )
-            movies = [
-                movie["_source"]
-                for movie in person_role_actors_movies["hits"]["hits"]
-            ]
             person = await self._get_person_elastic(person_id)
-            person.role = "actor"
-            person.film_ids = [movie.get("id") for movie in movies]
             if not person:
                 return None
             await self._put_person_to_cache(person)
 
         return person
+
+    async def _get_films_ids_by_actor(self, person_id: str):
+        body = {
+            "query": {
+                "nested": {
+                    "path": "actors",
+                    "query": {"match": {"actors.id": f"{person_id}"}},
+                }
+            }
+        }
+        actor_movies = await self._elastic.es.search(index="movies", body=body)
+        movies_ids = [
+            movie["_source"]["id"] for movie in actor_movies["hits"]["hits"]
+        ]
+        return movies_ids
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
@@ -54,6 +51,8 @@ class PersonService:
             )
             return None
         person = Person(**doc["_source"])
+        person.role = "actor"
+        person.film_ids = await self._get_films_ids_by_actor(person_id)
         return person
 
     async def _person_from_cache(self, person_id: str) -> Optional[Person]:

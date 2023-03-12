@@ -12,7 +12,7 @@ class FilmGenre(NestedModelMixin):
 
 
 class Film(IdModelMixin, ORDJSONModelMixin):
-    title: str | None = Field(default="")
+    title: str | None
     imdb_rating: float | None = Field(default=0.0)
     description: str | None = Field(default="")
     genre: list[FilmGenre] | None = Field(default=list())

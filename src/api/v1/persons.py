@@ -31,8 +31,7 @@ async def person_details(
     person_id: str,
     person_service: PersonService = Depends(PersonService),
 ) -> PersonOut:
-    query = dict(person_id=person_id, request=request, index="persons")
-    person = await person_service.get_by_id(query)
+    person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
