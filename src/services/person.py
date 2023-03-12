@@ -28,7 +28,7 @@ class PersonService:
 
         return person
 
-    async def _get_films_ids_by_actor(self, person_id: str):
+    async def _get_films_by_actor(self, person_id: str):
         body = {
             "query": {
                 "nested": {
@@ -45,7 +45,7 @@ class PersonService:
 
         return movies
 
-    async def _get_films_ids_by_writer(self, person_id: str):
+    async def _get_films_by_writer(self, person_id: str):
         body = {
             "query": {
                 "nested": {
@@ -64,7 +64,7 @@ class PersonService:
 
         return movies
 
-    async def _get_films_ids_by_director(self, person_id: str):
+    async def _get_films_by_director(self, person_id: str):
         movies = None
         body = {
             "query": {
@@ -84,10 +84,10 @@ class PersonService:
 
         return movies
 
-    async def _get_films_ids_by_role(self, person_id: str):
-        movies_director = await self._get_films_ids_by_director(person_id)
-        movies_writer = await self._get_films_ids_by_writer(person_id)
-        movies_actor = await self._get_films_ids_by_actor(person_id)
+    async def _get_films_roles(self, person_id: str):
+        movies_director = await self._get_films_by_director(person_id)
+        movies_writer = await self._get_films_by_writer(person_id)
+        movies_actor = await self._get_films_by_actor(person_id)
         movies = dict()
 
         if not movies_actor and not movies_writer and not movies_actor:
@@ -116,7 +116,7 @@ class PersonService:
         return person
 
     async def _enrich_person(self, person: Person) -> Optional[Person]:
-        films = await self._get_films_ids_by_role(person.id)
+        films = await self._get_films_roles(person.id)
         person.films = [
             dict(uuid=key, roles=value) for key, value in films.items()
         ]
