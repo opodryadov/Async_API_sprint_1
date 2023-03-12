@@ -28,7 +28,7 @@ async def person_details(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
         )
 
-    return Person(**person.dict(by_alias=True))
+    return Person(**person.dict())
 
 
 @router.get("/{person_id}/film")

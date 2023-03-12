@@ -9,11 +9,12 @@ def orjson_dumps(v, *, default):
 
 
 class IdModelMixin(BaseModel):
-    uuid: str = Field(alias="id")
+    id: str = Field(alias="uuid")
 
 
 class ORDJSONModelMixin(BaseModel):
     class Config:
+        allow_population_by_field_name = True
         json_loads = orjson.loads
         json_dumps = orjson_dumps
 

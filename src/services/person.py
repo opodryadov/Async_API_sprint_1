@@ -137,7 +137,7 @@ class PersonService:
 
     async def _put_person_to_cache(self, person: Person):
         await self._redis.redis.set(
-            person.uuid,
-            person.json(by_alias=True),
+            person.id,
+            person.json(),
             core.CACHE_EXPIRE_IN_SECONDS,
         )
