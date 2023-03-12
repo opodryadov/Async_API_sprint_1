@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 import orjson
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 def orjson_dumps(v, *, default):
@@ -9,7 +9,7 @@ def orjson_dumps(v, *, default):
 
 
 class IdModelMixin(BaseModel):
-    id: str
+    uuid: str = Field(alias="id")
 
 
 class ORDJSONModelMixin(BaseModel):

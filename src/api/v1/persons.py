@@ -1,9 +1,8 @@
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import Field
 
-from src.models.base import ORDJSONModelMixin
+from src.models import Person
 from src.services.person import PersonService
 
 
@@ -18,26 +17,18 @@ async def search_persons(
     pass
 
 
-class PersonOut(ORDJSONModelMixin):
-    uuid: str = Field(alias="id")
-    full_name: str
-    role: str
-    film_ids: list[str] | None = Field(default=list())
-
-
-@router.get("/{person_id}", response_model=PersonOut)
+@router.get("/{person_id}", response_model=Person)
 async def person_details(
-    request: Request,
     person_id: str,
     person_service: PersonService = Depends(PersonService),
-) -> PersonOut:
+) -> Person:
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
         )
 
-    return PersonOut(**person.dict(by_alias=True))
+    return Person(**person.dict(by_alias=True))
 
 
 @router.get("/{person_id}/film")
