@@ -1,5 +1,5 @@
-from src.models.base import ModelMixin
+from src.models.base import IdModelMixin, ORDJSONModelMixin
 
 
-class Genre(ModelMixin):
+class Genre(IdModelMixin, ORDJSONModelMixin):
     name: str

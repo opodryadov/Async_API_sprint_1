@@ -1,21 +1,21 @@
 from pydantic import Field
 
-from src.models.base import ModelMixin, NestedModelMixin
+from src.models.base import IdModelMixin, ORDJSONModelMixin
 
 
-class FilmPerson(NestedModelMixin):
+class FilmPerson(IdModelMixin, ORDJSONModelMixin):
     full_name: str
 
 
-class FilmGenre(NestedModelMixin):
+class FilmGenre(IdModelMixin, ORDJSONModelMixin):
     name: str
 
 
-class Film(ModelMixin):
-    title: str
+class Film(IdModelMixin, ORDJSONModelMixin):
+    title: str | None
     imdb_rating: float | None = Field(default=0.0)
     description: str | None = Field(default="")
-    genre: list[FilmGenre] | None = Field(default=list())
-    actors: list[FilmPerson] | None = Field(default=list())
-    writers: list[FilmPerson] | None = Field(default=list())
-    directors: list[FilmPerson] | None = Field(default=list())
+    genre: list[FilmGenre] | None
+    actors: list[FilmPerson] | None
+    writers: list[FilmPerson] | None
+    directors: list[FilmPerson] | None

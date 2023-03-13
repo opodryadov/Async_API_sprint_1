@@ -1,9 +1,25 @@
+from enum import Enum
+
 from pydantic import Field
 
-from src.models.base import ModelMixin
+from src.models.base import IdModelMixin, ORDJSONModelMixin
 
 
-class Person(ModelMixin):
+class PersonRole(str, Enum):
+    DIRECTOR = "director"
+    WRITER = "writer"
+    ACTOR = "actor"
+
+
+class NestedPersonFilm(IdModelMixin, ORDJSONModelMixin):
+    roles: list[str] | None
+
+
+class Person(IdModelMixin, ORDJSONModelMixin):
     full_name: str
-    role: str
-    film_ids: list[str] | None = Field(default=list())
+    films: list[NestedPersonFilm] | None
+
+
+class PersonFilm(IdModelMixin, ORDJSONModelMixin):
+    title: str | None
+    imdb_rating: float | None = Field(default=0.0)
