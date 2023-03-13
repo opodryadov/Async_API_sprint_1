@@ -1,18 +1,26 @@
-from fastapi import APIRouter, Depends, Request
+from http import HTTPStatus
 
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from src.models import Genre
 from src.services.genre import GenreService
 
 
 router = APIRouter()
 
 
-@router.get("/{genre_id}")
+@router.get("/{genre_id}", response_model=Genre)
 async def genre_details(
-    request: Request,
     genre_id: str,
     genre_service: GenreService = Depends(GenreService),
 ):
-    pass
+    genre = await genre_service.get_by_id(genre_id)
+    if not genre:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
+        )
+
+    return Genre(**genre.dict())
 
 
 @router.get("/")
