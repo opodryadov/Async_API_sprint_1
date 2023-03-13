@@ -146,46 +146,39 @@ class PersonService:
         )
         return films
 
-    async def _get_list_genres_elastic(
-        self, query: str, page_size: int, page_number: int
-    ):
-        if query:
-            params = dict(
+    async def _get_list_genres_elastic(self, params: dict):
+        if params.get("query"):
+            query = dict(
                 index="persons",
                 body={
                     "query": {
-                        "match": {
-                            "full_name": {
-                                "query": query,
-                                "fuzziness": 1,
-                                "operator": "or",
-                            }
+                        "multi_match": {
+                            "query": params.get("query"),
+                            "fields": ["full_name"],
+                            "type": "phrase",
+                            "boost": 10,
                         }
                     }
                 },
                 params={
-                    "size": page_size,
-                    "from": page_number,
+                    "size": params.get("page_size"),
+                    "from": params.get("page_number") - 1,
                 },
             )
         else:
-            params = dict(
+            query = dict(
                 index="persons",
                 body={"query": {"match_all": {}}},
                 params={
-                    "size": page_size,
-                    "from": page_number,
+                    "size": params.get("page_size"),
+                    "from": params.get("page_number") - 1,
                 },
             )
-        docs = await self._elastic.es.search(**params)
+        docs = await self._elastic.es.search(**query)
         return [Person(**doc["_source"]) for doc in docs["hits"]["hits"]]
 
-    async def person_search(
-        self, query: str, page_size: int, page_number: int
-    ):
-        persons = await self._get_list_genres_elastic(
-            query, page_size, page_number
-        )
+    async def person_search(self, params: dict):
+        persons = await self._get_list_genres_elastic(params)
         if not persons:
             return None
         persons = [
