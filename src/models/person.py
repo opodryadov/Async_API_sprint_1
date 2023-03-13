@@ -1,7 +1,5 @@
 from enum import Enum
 
-from pydantic import Field
-
 from src.models.base import IdModelMixin, ORDJSONModelMixin
 
 
@@ -12,9 +10,9 @@ class PersonRole(str, Enum):
 
 
 class PersonFilms(IdModelMixin, ORDJSONModelMixin):
-    roles: list[str] | None = Field(default=list())
+    roles: list[str] | None
 
 
 class Person(IdModelMixin, ORDJSONModelMixin):
     full_name: str
-    films: list[PersonFilms] | None = Field(default=list())
+    films: list[PersonFilms] | None

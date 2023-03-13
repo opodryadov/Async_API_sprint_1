@@ -17,7 +17,7 @@ async def genre_details(
     genre = await genre_service.get_by_id(genre_id)
     if not genre:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
+            status_code=HTTPStatus.NOT_FOUND, detail="Genre not found"
         )
 
     return Genre(**genre.dict())

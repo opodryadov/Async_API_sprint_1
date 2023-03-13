@@ -1,5 +1,3 @@
-from typing import TypedDict
-
 import orjson
 from pydantic import BaseModel, Field
 
@@ -17,7 +15,3 @@ class ORDJSONModelMixin(BaseModel):
         allow_population_by_field_name = True
         json_loads = orjson.loads
         json_dumps = orjson_dumps
-
-
-class NestedModelMixin(TypedDict, total=False):
-    id: str
