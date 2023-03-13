@@ -13,7 +13,7 @@ class GenreService:
         self._redis = RedisConnector()
         self._elastic = ESConnector()
 
-    async def get_by_id(self, genre_id: str) -> Optional[Genre]:
+    async def get_genre_by_id(self, genre_id: str) -> Optional[dict]:
         genre = await self._genre_from_cache(genre_id)
         if not genre:
             genre = await self._get_genre_elastic(genre_id)
@@ -21,7 +21,24 @@ class GenreService:
                 return None
             await self._put_genre_to_cache(genre)
 
-        return genre
+        return genre.dict()
+
+    async def get_list_genre(self) -> Optional[list[dict]]:
+        # Придумать как сохранить в кэше
+        genres = await self._get_list_genres_elastic()
+        if not genres:
+            return None
+        genres = [genre.dict() for genre in genres]
+        return genres
+
+    async def _get_list_genres_elastic(self):
+        try:
+            docs = await self._elastic.es.search(
+                index="genres", body={"query": {"match_all": {}}}
+            )
+        except NotFoundError:
+            return []
+        return [Genre(**doc["_source"]) for doc in docs["hits"]["hits"]]
 
     async def _get_genre_elastic(self, genre_id: str) -> Optional[Genre]:
         try:

@@ -17,7 +17,7 @@ class PersonService:
         self._redis = RedisConnector()
         self._elastic = ESConnector()
 
-    async def get_person_by_id(self, person_id) -> Optional[Person]:
+    async def get_person_by_id(self, person_id) -> Optional[dict]:
         person = await self._person_from_cache(person_id)
         if not person:
             person = await self._get_person_elastic(person_id)
@@ -26,7 +26,7 @@ class PersonService:
             person = await self._enrich_person(person)
             await self._put_person_to_cache(person)
 
-        return person
+        return person.dict()
 
     async def _get_films_by_actor(self, person_id: str):
         body = {
@@ -37,10 +37,8 @@ class PersonService:
                 }
             }
         }
-        actor_movies = await self._elastic.es.search(index="movies", body=body)
-        movies = [
-            Film(**movie["_source"]) for movie in actor_movies["hits"]["hits"]
-        ]
+        docs = await self._elastic.es.search(index="movies", body=body)
+        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
 
         return movies
 
@@ -53,12 +51,8 @@ class PersonService:
                 }
             }
         }
-        writer_movies = await self._elastic.es.search(
-            index="movies", body=body
-        )
-        movies = [
-            Film(**movie["_source"]) for movie in writer_movies["hits"]["hits"]
-        ]
+        docs = await self._elastic.es.search(index="movies", body=body)
+        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
 
         return movies
 
@@ -71,13 +65,8 @@ class PersonService:
                 }
             }
         }
-        director_movies = await self._elastic.es.search(
-            index="movies", body=body
-        )
-        movies = [
-            Film(**movie["_source"])
-            for movie in director_movies["hits"]["hits"]
-        ]
+        docs = await self._elastic.es.search(index="movies", body=body)
+        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
 
         return movies
 
@@ -144,11 +133,15 @@ class PersonService:
         )
 
     async def get_films_by_person_id(self, person_id: str):
+        # Прридумать как сохранить в кэше
         films_director = await self._get_films_by_director(person_id)
         films_writer = await self._get_films_by_writer(person_id)
         films_actor = await self._get_films_by_actor(person_id)
         films = films_director + films_writer + films_actor
+        if not films:
+            return None
+
         films = list(
-            {v["id"]: v for v in [film.dict() for film in films]}.values()
+            {v["id"]: v for v in (film.dict() for film in films)}.values()
         )
         return films

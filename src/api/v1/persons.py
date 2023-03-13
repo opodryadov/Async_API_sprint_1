@@ -28,7 +28,7 @@ async def person_details(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
         )
 
-    return person.dict()
+    return person
 
 
 @router.get("/{person_id}/film", response_model=list[PersonFilm])
@@ -39,4 +39,5 @@ async def list_film_by_person(
     films = await person_service.get_films_by_person_id(person_id)
     if not films:
         return []
+
     return films
