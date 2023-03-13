@@ -155,8 +155,8 @@ class PersonService:
                         "multi_match": {
                             "query": params.get("query"),
                             "fields": ["full_name"],
-                            "type": "phrase",
-                            "boost": 10,
+                            "type": "phrase_prefix",
+                            "tie_breaker": 0.3,
                         }
                     }
                 },
