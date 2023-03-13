@@ -5,7 +5,7 @@ from elasticsearch import NotFoundError
 from src import core
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
-from src.models import Film
+from src.models import Film, FilmShort
 
 
 class FilmService:
@@ -29,7 +29,7 @@ class FilmService:
         sort: dict,
         page_size: int,
         page_number: int
-    ) -> Optional[list[Film]]:
+    ) -> Optional[list[FilmShort]]:
         body = {
             "from": page_number,
             "size": page_size,
@@ -49,7 +49,32 @@ class FilmService:
         }
         films = await self._elastic.es.search(index="movies", body=body)
 
-        return [Film(**film["_source"]) for film in films["hits"]["hits"]]
+        return [FilmShort(**film["_source"]) for film in films["hits"]["hits"]]
+
+    async def search_films(
+        self,
+        query: str,
+        page_size: int,
+        page_number: int
+    ) -> Optional[list[FilmShort]]:
+        body = {
+            "from": page_number,
+            "size": page_size,
+            "query": {
+                "bool": {
+                    "must": {
+                        "multi_match": {
+                            "query": query,
+                            "type": "most_fields",
+                            "fields": ["title", "description"]
+                        }
+                    }
+                }
+            }
+        }
+        films = await self._elastic.es.search(index="movies", body=body)
+
+        return [FilmShort(**film["_source"]) for film in films["hits"]["hits"]]
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:

@@ -35,10 +35,34 @@ async def all_films_details(
     page_number: int = 0,
     page_size: int = 10,
     film_service: FilmService = Depends(FilmService)
-) -> list[Film]:
+) -> list[FilmShort]:
     films = await film_service.get_all_films(
         genre_uuid=genre,
         sort=get_sort(sort),
+        page_size=page_size,
+        page_number=page_number
+    )
+    if not films:
+        return []
+
+    return films
+
+
+@router.get(
+    "/search",
+    response_model=list[FilmShort],
+    summary="Поиск по фильмам",
+    description="Поиск фильма по названию или описанию",
+    response_description="Список фильмов с UUID, названием и рейтингом",
+)
+async def search_film(
+    query: str = "",
+    page_number: int = 0,
+    page_size: int = 10,
+    film_service: FilmService = Depends(FilmService)
+) -> list[FilmShort]:
+    films = await film_service.search_films(
+        query=query,
         page_size=page_size,
         page_number=page_number
     )
