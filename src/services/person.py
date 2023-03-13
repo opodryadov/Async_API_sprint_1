@@ -133,7 +133,6 @@ class PersonService:
         )
 
     async def get_films_by_person_id(self, person_id: str):
-        # Прридумать как сохранить в кэше
         films_director = await self._get_films_by_director(person_id)
         films_writer = await self._get_films_by_writer(person_id)
         films_actor = await self._get_films_by_actor(person_id)

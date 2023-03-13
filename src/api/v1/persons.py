@@ -1,3 +1,4 @@
+import logging
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,6 +10,8 @@ from src.services.person import PersonService
 
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @router.get("/search", response_model=list[Person])
@@ -33,6 +36,7 @@ async def person_details(
 ) -> dict:
     person = await person_service.get_person_by_id(person_id)
     if not person:
+        logger.warning("Person was not found by id %s", person_id)
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
         )
@@ -51,6 +55,9 @@ async def list_film_by_person(
 ) -> list[dict]:
     films = await person_service.get_films_by_person_id(person_id)
     if not films:
+        logger.info(
+            "Person did not participate in any film: person_id %s", person_id
+        )
         return []
 
     return films

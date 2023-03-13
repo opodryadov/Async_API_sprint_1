@@ -24,7 +24,6 @@ class GenreService:
         return genre.dict()
 
     async def get_list_genre(self) -> Optional[list[dict]]:
-        # Придумать как сохранить в кэше
         genres = await self._get_list_genres_elastic()
         if not genres:
             return None

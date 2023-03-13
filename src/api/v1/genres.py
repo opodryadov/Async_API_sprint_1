@@ -1,3 +1,4 @@
+import logging
 from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +9,8 @@ from src.services.genre import GenreService
 
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @router.get(
@@ -21,6 +24,7 @@ async def genre_details(
 ) -> dict:
     genre = await genre_service.get_genre_by_id(genre_id)
     if not genre:
+        logger.warning("Genre was not found by id %s", genre_id)
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Genre not found"
         )
@@ -34,6 +38,7 @@ async def list_genres(
 ) -> list[dict]:
     genres = await genre_service.get_list_genre()
     if not genres:
+        logger.warning("Was not a single genre")
         return []
 
     return genres
