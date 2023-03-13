@@ -6,7 +6,7 @@ from elasticsearch import NotFoundError
 from src import core
 from src.common.connectors.es import ESConnector
 from src.common.connectors.redis import RedisConnector
-from src.models import Person, PersonRole
+from src.models import Film, Person, PersonRole
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ class PersonService:
         self._redis = RedisConnector()
         self._elastic = ESConnector()
 
-    async def get_by_id(self, person_id) -> Optional[Person]:
+    async def get_person_by_id(self, person_id) -> Optional[Person]:
         person = await self._person_from_cache(person_id)
         if not person:
             person = await self._get_person_elastic(person_id)
@@ -38,10 +38,9 @@ class PersonService:
             }
         }
         actor_movies = await self._elastic.es.search(index="movies", body=body)
-        movies = {
-            movie["_source"]["id"]: PersonRole.ACTOR
-            for movie in actor_movies["hits"]["hits"]
-        }
+        movies = [
+            Film(**movie["_source"]) for movie in actor_movies["hits"]["hits"]
+        ]
 
         return movies
 
@@ -57,15 +56,13 @@ class PersonService:
         writer_movies = await self._elastic.es.search(
             index="movies", body=body
         )
-        movies = {
-            movie["_source"]["id"]: PersonRole.WRITER
-            for movie in writer_movies["hits"]["hits"]
-        }
+        movies = [
+            Film(**movie["_source"]) for movie in writer_movies["hits"]["hits"]
+        ]
 
         return movies
 
     async def _get_films_by_director(self, person_id: str):
-        movies = None
         body = {
             "query": {
                 "nested": {
@@ -77,17 +74,26 @@ class PersonService:
         director_movies = await self._elastic.es.search(
             index="movies", body=body
         )
-        movies = {
-            movie["_source"]["id"]: PersonRole.DIRECTOR
+        movies = [
+            Film(**movie["_source"])
             for movie in director_movies["hits"]["hits"]
-        }
+        ]
 
         return movies
 
     async def _get_films_roles(self, person_id: str):
-        movies_director = await self._get_films_by_director(person_id)
-        movies_writer = await self._get_films_by_writer(person_id)
-        movies_actor = await self._get_films_by_actor(person_id)
+        movies_director = {
+            movie.id: PersonRole.DIRECTOR
+            for movie in await self._get_films_by_director(person_id)
+        }
+        movies_writer = {
+            movie.id: PersonRole.WRITER
+            for movie in await self._get_films_by_writer(person_id)
+        }
+        movies_actor = {
+            movie.id: PersonRole.ACTOR
+            for movie in await self._get_films_by_actor(person_id)
+        }
         movies = dict()
 
         if not movies_actor and not movies_writer and not movies_actor:
@@ -136,3 +142,13 @@ class PersonService:
             person.json(),
             core.CACHE_EXPIRE_IN_SECONDS,
         )
+
+    async def get_films_by_person_id(self, person_id: str):
+        films_director = await self._get_films_by_director(person_id)
+        films_writer = await self._get_films_by_writer(person_id)
+        films_actor = await self._get_films_by_actor(person_id)
+        films = films_director + films_writer + films_actor
+        films = list(
+            {v["id"]: v for v in [film.dict() for film in films]}.values()
+        )
+        return films

@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.models import Person
+from src.models import Person, PersonFilm
 from src.services.person import PersonService
 
 
@@ -21,20 +21,22 @@ async def search_persons(
 async def person_details(
     person_id: str,
     person_service: PersonService = Depends(PersonService),
-) -> Person:
-    person = await person_service.get_by_id(person_id)
+) -> dict:
+    person = await person_service.get_person_by_id(person_id)
     if not person:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Person not found"
         )
 
-    return Person(**person.dict())
+    return person.dict()
 
 
-@router.get("/{person_id}/film")
+@router.get("/{person_id}/film", response_model=list[PersonFilm])
 async def list_film_by_person(
-    request: Request,
     person_id: str,
     person_service: PersonService = Depends(PersonService),
-):
-    pass
+) -> list[dict]:
+    films = await person_service.get_films_by_person_id(person_id)
+    if not films:
+        return []
+    return films
