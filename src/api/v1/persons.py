@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.models import Person, PersonFilm
 from src.services.person import PersonService
@@ -11,10 +11,15 @@ router = APIRouter()
 
 @router.get("/search")
 async def search_persons(
-    request: Request,
     person_service: PersonService = Depends(PersonService),
+    query: str | None = Query(default=""),
+    page_size: int | None = Query(default=50),
+    page_number: int | None = Query(default=1),
 ):
-    pass
+    persons = await person_service.person_search(query, page_size, page_number)
+    if not persons:
+        return []
+    return persons
 
 
 @router.get("/{person_id}", response_model=Person)

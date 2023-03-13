@@ -13,7 +13,7 @@ router = APIRouter()
 async def genre_details(
     genre_id: str,
     genre_service: GenreService = Depends(GenreService),
-):
+) -> dict:
     genre = await genre_service.get_genre_by_id(genre_id)
     if not genre:
         raise HTTPException(
@@ -24,7 +24,9 @@ async def genre_details(
 
 
 @router.get("/", response_model=list[Genre])
-async def list_genres(genre_service: GenreService = Depends(GenreService)):
+async def list_genres(
+    genre_service: GenreService = Depends(GenreService),
+) -> list[dict]:
     genres = await genre_service.get_list_genre()
     if not genres:
         return []

@@ -145,3 +145,53 @@ class PersonService:
             {v["id"]: v for v in (film.dict() for film in films)}.values()
         )
         return films
+
+    async def _get_list_genres_elastic(
+        self, query: str, page_size: int, page_number: int
+    ):
+        if query:
+            params = dict(
+                index="persons",
+                body={
+                    "query": {
+                        "match": {
+                            "full_name": {
+                                "query": query,
+                                "fuzziness": 1,
+                                "operator": "or",
+                            }
+                        }
+                    }
+                },
+                params={
+                    "size": page_size,
+                    "from": page_number,
+                },
+            )
+        else:
+            params = dict(
+                index="persons",
+                body={"query": {"match_all": {}}},
+                params={
+                    "size": page_size,
+                    "from": page_number,
+                },
+            )
+        docs = await self._elastic.es.search(**params)
+        return [Person(**doc["_source"]) for doc in docs["hits"]["hits"]]
+
+    async def person_search(
+        self, query: str, page_size: int, page_number: int
+    ):
+        persons = await self._get_list_genres_elastic(
+            query, page_size, page_number
+        )
+        if not persons:
+            return None
+        persons = [
+            person.dict()
+            for person in [
+                await self._enrich_person(person) for person in persons
+            ]
+        ]
+        return persons
