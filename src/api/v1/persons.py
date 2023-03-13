@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from src.common.utils import query_params
 from src.models import Person, PersonFilm
+from src.models.response import BadRequest, NotFound
 from src.services.person import PersonService
 
 
@@ -21,7 +22,11 @@ async def search_persons(
     return persons
 
 
-@router.get("/{person_id}", response_model=Person)
+@router.get(
+    "/{person_id}",
+    response_model=Person,
+    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+)
 async def person_details(
     person_id: str,
     person_service: PersonService = Depends(PersonService),
@@ -35,7 +40,11 @@ async def person_details(
     return person
 
 
-@router.get("/{person_id}/film", response_model=list[PersonFilm])
+@router.get(
+    "/{person_id}/film",
+    response_model=list[PersonFilm],
+    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+)
 async def list_film_by_person(
     person_id: str,
     person_service: PersonService = Depends(PersonService),

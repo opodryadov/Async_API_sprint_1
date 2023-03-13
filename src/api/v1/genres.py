@@ -3,13 +3,18 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.models import Genre
+from src.models.response import BadRequest, NotFound
 from src.services.genre import GenreService
 
 
 router = APIRouter()
 
 
-@router.get("/{genre_id}", response_model=Genre)
+@router.get(
+    "/{genre_id}",
+    response_model=Genre,
+    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+)
 async def genre_details(
     genre_id: str,
     genre_service: GenreService = Depends(GenreService),
