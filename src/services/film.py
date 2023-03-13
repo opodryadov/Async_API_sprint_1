@@ -23,6 +23,34 @@ class FilmService:
 
         return film
 
+    async def get_all_films(
+        self,
+        genre_uuid: str,
+        sort: dict,
+        page_size: int,
+        page_number: int
+    ) -> Optional[list[Film]]:
+        body = {
+            "from": page_number,
+            "size": page_size,
+            "query": {
+                "match_all": {}
+            } if not genre_uuid else {
+                "nested": {
+                    "path": "genre",
+                    "query": {
+                        "match": {
+                            "genre.id": f"{genre_uuid}"
+                        }
+                    },
+                }
+            },
+            "sort": [sort]
+        }
+        films = await self._elastic.es.search(index="movies", body=body)
+
+        return [Film(**film["_source"]) for film in films["hits"]["hits"]]
+
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
             doc = await self._elastic.es.get("movies", film_id)

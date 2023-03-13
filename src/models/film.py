@@ -19,3 +19,8 @@ class Film(IdModelMixin, ORDJSONModelMixin):
     actors: list[FilmPerson] | None
     writers: list[FilmPerson] | None
     directors: list[FilmPerson] | None
+
+
+class FilmShort(IdModelMixin, ORDJSONModelMixin):
+    title: str | None
+    imdb_rating: float | None = Field(default=0.0)
