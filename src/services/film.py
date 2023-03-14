@@ -1,8 +1,6 @@
 import logging
 from typing import Optional
 
-from elasticsearch import NotFoundError
-
 from src.common.storages.es_storage import EsStorage
 from src.common.storages.redis_storage import RedisStorage
 from src.models import Film, FilmShort
@@ -20,9 +18,9 @@ class FilmService:
         film = await self._redis_storage.get_from_cache(key=film_id)
         if film:
             film = Film.parse_raw(film)
-            return film.dict()
+            return film
 
-        film = await self._get_film_from_elastic(film_id)
+        film = await self._es_storage.get_film(film_id)
         if not film:
             return None
         await self._redis_storage.put_to_cache(key=film.id, value=film.json())
@@ -45,16 +43,6 @@ class FilmService:
 
         return films
 
-    async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
-        try:
-            doc = await self._es_storage.get_by_id(
-                index="movies", doc_id=film_id
-            )
-        except NotFoundError:
-            logger.error("Film was not found in ES: %s", film_id)
-            return None
-        return Film(**doc)
-
     async def _get_films_genre_sort(
         self, params: dict, genre: str
     ) -> Optional[list[FilmShort]]:
@@ -75,19 +63,22 @@ class FilmService:
             },
         )
         key = await self._redis_storage.get_key(query)
-        films = await self._redis_storage.get_from_cache(key=key)
-        if films:
-            films_deserialize = await self._redis_storage.deserialize(films)
-            films = [FilmShort.parse_raw(film) for film in films_deserialize]
-            return films
+        short_films = await self._redis_storage.get_from_cache(key=key)
+        if short_films:
+            films_deserialize = await self._redis_storage.deserialize(
+                short_films
+            )
+            short_films = [
+                FilmShort.parse_raw(film) for film in films_deserialize
+            ]
+            return short_films
 
-        docs = await self._es_storage.search(**query)
-        films = [FilmShort(**doc["_source"]) for doc in docs]
+        short_films = await self._es_storage.get_list_short_films(query)
         films_serialize = await self._redis_storage.serialize(
-            [film.json() for film in films]
+            [film.json() for film in short_films]
         )
         await self._redis_storage.put_to_cache(key=key, value=films_serialize)
-        return films
+        return short_films
 
     async def _search_films(self, params: dict):
         query = dict(
@@ -110,16 +101,19 @@ class FilmService:
             },
         )
         key = await self._redis_storage.get_key(query)
-        films = await self._redis_storage.get_from_cache(key=key)
-        if films:
-            films_deserialize = await self._redis_storage.deserialize(films)
-            films = [FilmShort.parse_raw(film) for film in films_deserialize]
-            return films
+        short_films = await self._redis_storage.get_from_cache(key=key)
+        if short_films:
+            films_deserialize = await self._redis_storage.deserialize(
+                short_films
+            )
+            short_films = [
+                FilmShort.parse_raw(film) for film in films_deserialize
+            ]
+            return short_films
 
-        docs = await self._es_storage.search(**query)
-        films = [FilmShort(**doc["_source"]) for doc in docs]
+        short_films = await self._es_storage.get_list_short_films(query)
         films_serialize = await self._redis_storage.serialize(
-            [film.json() for film in films]
+            [film.json() for film in short_films]
         )
         await self._redis_storage.put_to_cache(key=key, value=films_serialize)
-        return films
+        return short_films

@@ -1,7 +1,4 @@
 import logging
-from typing import Optional
-
-from elasticsearch import NotFoundError
 
 from src.common.storages.es_storage import EsStorage
 from src.common.storages.redis_storage import RedisStorage
@@ -16,13 +13,13 @@ class PersonService:
         self._es_storage = EsStorage()
         self._redis_storage = RedisStorage()
 
-    async def get_person_by_id(self, person_id) -> Optional[dict]:
+    async def get_person_by_id(self, person_id) -> dict | None:
         person = await self._redis_storage.get_from_cache(key=person_id)
         if person:
             person = Person.parse_raw(person)
             return person.dict()
 
-        person = await self._get_person_elastic(person_id)
+        person = await self._es_storage.get_person(person_id)
         if not person:
             return None
         person = await self._enrich_person(person)
@@ -32,32 +29,63 @@ class PersonService:
 
         return person.dict()
 
-    async def _get_films_by_role(self, person_id: str, role: str):
-        body = {
-            "query": {
-                "nested": {
-                    "path": role,
-                    "query": {"match": {f"{role}.id": f"{person_id}"}},
-                }
-            }
-        }
+    async def get_films_by_person_id(
+        self, person_id: str
+    ) -> list[dict] | None:
+        films_director = await self._get_films_by_role(person_id, "directors")
+        films_writer = await self._get_films_by_role(person_id, "writers")
+        films_actor = await self._get_films_by_role(person_id, "actors")
+        films = films_director + films_writer + films_actor
+        if not films:
+            return None
 
-        key = await self._redis_storage.get_key(body)
+        films = list(
+            {v["id"]: v for v in (film.dict() for film in films)}.values()
+        )
+        return films
+
+    async def person_search(self, params: dict) -> list[dict] | None:
+        persons = await self._get_list_persons(params)
+        if not persons:
+            return None
+        persons = [
+            person.dict()
+            for person in [
+                await self._enrich_person(person) for person in persons
+            ]
+        ]
+        return persons
+
+    async def _get_films_by_role(
+        self, person_id: str, role: str
+    ) -> list[Film]:
+        query = dict(
+            index="movies",
+            body={
+                "query": {
+                    "nested": {
+                        "path": role,
+                        "query": {"match": {f"{role}.id": f"{person_id}"}},
+                    }
+                }
+            },
+        )
+
+        key = await self._redis_storage.get_key(query)
         movies = await self._redis_storage.get_from_cache(key=key)
         if movies:
             movies_deserialize = await self._redis_storage.deserialize(movies)
             movies = [Film.parse_raw(movie) for movie in movies_deserialize]
             return movies
 
-        docs = await self._es_storage.search(index="movies", body=body)
-        movies = [Film(**doc["_source"]) for doc in docs]
+        movies = await self._es_storage.get_list_films(query)
         movies_serialize = await self._redis_storage.serialize(
             [movie.json() for movie in movies]
         )
         await self._redis_storage.put_to_cache(key=key, value=movies_serialize)
         return movies
 
-    async def _get_films_roles(self, person_id: str):
+    async def _get_films_roles(self, person_id: str) -> dict:
         movies_director = {
             movie.id: PersonRole.DIRECTOR
             for movie in await self._get_films_by_role(person_id, "directors")
@@ -86,38 +114,14 @@ class PersonService:
 
         return movies
 
-    async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
-        try:
-            doc = await self._es_storage.get_by_id(
-                index="persons", doc_id=person_id
-            )
-        except NotFoundError:
-            logger.error("Person was not found in ES: %s", person_id)
-            return None
-        person = Person(**doc)
-        return person
-
-    async def _enrich_person(self, person: Person) -> Optional[Person]:
+    async def _enrich_person(self, person: Person) -> Person:
         films = await self._get_films_roles(person.id)
         person.films = [
             dict(uuid=key, roles=value) for key, value in films.items()
         ]
         return person
 
-    async def get_films_by_person_id(self, person_id: str):
-        films_director = await self._get_films_by_role(person_id, "directors")
-        films_writer = await self._get_films_by_role(person_id, "writers")
-        films_actor = await self._get_films_by_role(person_id, "actors")
-        films = films_director + films_writer + films_actor
-        if not films:
-            return None
-
-        films = list(
-            {v["id"]: v for v in (film.dict() for film in films)}.values()
-        )
-        return films
-
-    async def _get_list_persons_elastic(self, params: dict):
+    async def _get_list_persons(self, params: dict) -> list[Person]:
         if params.get("query"):
             query = dict(
                 index="persons",
@@ -157,24 +161,11 @@ class PersonService:
             ]
             return persons
 
-        docs = await self._es_storage.search(**query)
-        persons = [Person(**doc["_source"]) for doc in docs]
+        persons = await self._es_storage.get_list_persons(query)
         persons_serialize = await self._redis_storage.serialize(
             [person.json() for person in persons]
         )
         await self._redis_storage.put_to_cache(
             key=key, value=persons_serialize
         )
-        return persons
-
-    async def person_search(self, params: dict):
-        persons = await self._get_list_persons_elastic(params)
-        if not persons:
-            return None
-        persons = [
-            person.dict()
-            for person in [
-                await self._enrich_person(person) for person in persons
-            ]
-        ]
         return persons

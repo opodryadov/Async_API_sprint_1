@@ -38,7 +38,7 @@ async def list_genres(
     genre_service: GenreService = Depends(GenreService),
     params: dict = Depends(query_params),
 ) -> list[dict]:
-    genres = await genre_service.get_list_genre(params)
+    genres = await genre_service.get_list_genres(params)
     if not genres:
         logger.warning("Was not a single genre")
         return []
