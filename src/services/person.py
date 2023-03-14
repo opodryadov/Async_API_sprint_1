@@ -41,8 +41,20 @@ class PersonService:
                 }
             }
         }
+
+        key = await self._redis_storage.get_key(body)
+        movies = await self._redis_storage.get_from_cache(key=key)
+        if movies:
+            movies_deserialize = await self._redis_storage.deserialize(movies)
+            movies = [Film.parse_raw(movie) for movie in movies_deserialize]
+            return movies
+
         docs = await self._es_storage.search(index="movies", body=body)
         movies = [Film(**doc["_source"]) for doc in docs]
+        movies_serialize = await self._redis_storage.serialize(
+            [movie.json() for movie in movies]
+        )
+        await self._redis_storage.put_to_cache(key=key, value=movies_serialize)
         return movies
 
     async def _get_films_roles(self, person_id: str):
@@ -105,7 +117,7 @@ class PersonService:
         )
         return films
 
-    async def _get_list_genres_elastic(self, params: dict):
+    async def _get_list_persons_elastic(self, params: dict):
         if params.get("query"):
             query = dict(
                 index="persons",
@@ -133,11 +145,30 @@ class PersonService:
                     "from": params.get("page_number") - 1,
                 },
             )
+
+        key = await self._redis_storage.get_key(query)
+        persons = await self._redis_storage.get_from_cache(key=key)
+        if persons:
+            persons_deserialize = await self._redis_storage.deserialize(
+                persons
+            )
+            persons = [
+                Person.parse_raw(person) for person in persons_deserialize
+            ]
+            return persons
+
         docs = await self._es_storage.search(**query)
-        return [Person(**doc["_source"]) for doc in docs]
+        persons = [Person(**doc["_source"]) for doc in docs]
+        persons_serialize = await self._redis_storage.serialize(
+            [person.json() for person in persons]
+        )
+        await self._redis_storage.put_to_cache(
+            key=key, value=persons_serialize
+        )
+        return persons
 
     async def person_search(self, params: dict):
-        persons = await self._get_list_genres_elastic(params)
+        persons = await self._get_list_persons_elastic(params)
         if not persons:
             return None
         persons = [
