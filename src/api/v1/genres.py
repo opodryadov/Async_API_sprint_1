@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from src.common.utils import query_params
 from src.models import Genre
 from src.models.response import BadRequest, NotFound
 from src.services.genre import GenreService
@@ -35,8 +36,9 @@ async def genre_details(
 @router.get("/", response_model=list[Genre])
 async def list_genres(
     genre_service: GenreService = Depends(GenreService),
+    params: dict = Depends(query_params),
 ) -> list[dict]:
-    genres = await genre_service.get_list_genre()
+    genres = await genre_service.get_list_genre(params)
     if not genres:
         logger.warning("Was not a single genre")
         return []

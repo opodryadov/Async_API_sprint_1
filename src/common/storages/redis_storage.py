@@ -34,7 +34,7 @@ class RedisStorage(BaseCacheStorage):
     async def deserialize(self, value: str) -> list:
         return orjson.loads(value)
 
-    async def get_from_cache(self, key: str) -> str:
+    async def get_from_cache(self, key: str) -> str | None:
         data = await self._redis.redis.get(key)
         if not data:
             return None

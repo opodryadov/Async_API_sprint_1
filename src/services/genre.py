@@ -31,18 +31,36 @@ class GenreService:
 
         return genre.dict()
 
-    async def get_list_genre(self) -> Optional[list[dict]]:
-        genres = await self._get_list_genres_elastic()
+    async def get_list_genre(self, params) -> Optional[list[dict]]:
+        genres = await self._get_list_genres_elastic(params)
         if not genres:
             return None
         genres = [genre.dict() for genre in genres]
         return genres
 
-    async def _get_list_genres_elastic(self):
-        docs = await self._es_storage.search(
-            index="genres", body={"query": {"match_all": {}}}
+    async def _get_list_genres_elastic(self, params):
+        query = dict(
+            index="genres",
+            body={"query": {"match_all": {}}},
+            params={
+                "size": params.get("page_size"),
+                "from": params.get("page_number") - 1,
+            },
         )
-        return [Genre(**doc["_source"]) for doc in docs]
+        key = await self._redis_storage.get_key(query)
+        genres = await self._redis_storage.get_from_cache(key=key)
+        if genres:
+            genres_deserialize = await self._redis_storage.deserialize(genres)
+            genres = [Genre.parse_raw(genre) for genre in genres_deserialize]
+            return genres
+
+        docs = await self._es_storage.search(**query)
+        genres = [Genre(**doc["_source"]) for doc in docs]
+        genres_serialize = await self._redis_storage.serialize(
+            [genre.json() for genre in genres]
+        )
+        await self._redis_storage.put_to_cache(key=key, value=genres_serialize)
+        return genres
 
     async def _get_genre_elastic(self, genre_id: str) -> Optional[Genre]:
         try:
