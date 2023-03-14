@@ -68,7 +68,7 @@ class FilmService:
                     "path": "genre",
                     "query": {
                         "match": {
-                            "genre.id": params.get("genre")
+                            "genre.id": params.get("query")
                         }
                     },
                 }
@@ -92,7 +92,8 @@ class FilmService:
                         }
                     }
                 }
-            }
+            },
+            "sort": params.get("sort")
         }
         docs = await self._elastic.es.search(index="movies", body=body)
         return [FilmShort(**doc["_source"]) for doc in docs["hits"]["hits"]]

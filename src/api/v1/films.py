@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.common.utils import query_params, filter_sort_query_params
+from src.common.utils import query_params
 from src.models import Film, FilmShort
 from src.models.response import BadRequest, NotFound
 from src.services.film import FilmService
@@ -19,7 +19,7 @@ router = APIRouter()
     response_description="Список фильмов с UUID, названием и рейтингом"
 )
 async def list_films(
-    params: dict = Depends(filter_sort_query_params),
+    params: dict = Depends(query_params),
     film_service: FilmService = Depends(FilmService)
 ) -> list[FilmShort]:
     films = await film_service.get_all_films(params)
