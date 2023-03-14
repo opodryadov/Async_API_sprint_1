@@ -3,9 +3,8 @@ from typing import Optional
 
 from elasticsearch import NotFoundError
 
-from src import core
 from src.common.connectors.es import ESConnector
-from src.common.connectors.redis import RedisConnector
+from src.common.storages.redis_storage import RedisStorage
 from src.models import Film, Person, PersonRole
 
 
@@ -14,17 +13,22 @@ logger = logging.getLogger(__name__)
 
 class PersonService:
     def __init__(self):
-        self._redis = RedisConnector()
         self._elastic = ESConnector()
+        self._redis_storage = RedisStorage()
 
     async def get_person_by_id(self, person_id) -> Optional[dict]:
-        person = await self._person_from_cache(person_id)
+        person = await self._redis_storage.get_from_cache(key=person_id)
+        if person:
+            person = Person.parse_raw(person)
+            return person.dict()
+
+        person = await self._get_person_elastic(person_id)
         if not person:
-            person = await self._get_person_elastic(person_id)
-            if not person:
-                return None
-            person = await self._enrich_person(person)
-            await self._put_person_to_cache(person)
+            return None
+        person = await self._enrich_person(person)
+        await self._redis_storage.put_to_cache(
+            key=person.id, value=person.json()
+        )
 
         return person.dict()
 
@@ -116,21 +120,6 @@ class PersonService:
             dict(uuid=key, roles=value) for key, value in films.items()
         ]
         return person
-
-    async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-        data = await self._redis.redis.get(person_id)
-        if not data:
-            return None
-
-        person = Person.parse_raw(data)
-        return person
-
-    async def _put_person_to_cache(self, person: Person):
-        await self._redis.redis.set(
-            person.id,
-            person.json(),
-            core.CACHE_EXPIRE_IN_SECONDS,
-        )
 
     async def get_films_by_person_id(self, person_id: str):
         films_director = await self._get_films_by_director(person_id)

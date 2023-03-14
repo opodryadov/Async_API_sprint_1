@@ -1,25 +1,26 @@
 from typing import Optional
 
 from elasticsearch import NotFoundError
-
-from src import core
 from src.common.connectors.es import ESConnector
-from src.common.connectors.redis import RedisConnector
+from src.common.storages.redis_storage import RedisStorage
 from src.models import Film, FilmShort
 
 
 class FilmService:
     def __init__(self):
-        self._redis = RedisConnector()
         self._elastic = ESConnector()
+        self._redis_storage = RedisStorage()
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
-        film = await self._film_from_cache(film_id)
+        film = await self._redis_storage.get_from_cache(key=film_id)
+        if film:
+            film = Film.parse_raw(film)
+            return film.dict()
+
+        film = await self._get_film_from_elastic(film_id)
         if not film:
-            film = await self._get_film_from_elastic(film_id)
-            if not film:
-                return None
-            await self._put_film_to_cache(film)
+            return None
+        await self._redis_storage.put_to_cache(key=film.id, value=film.json())
 
         return film
 
@@ -43,19 +44,6 @@ class FilmService:
         except NotFoundError:
             return None
         return Film(**doc["_source"])
-
-    async def _film_from_cache(self, film_id: str) -> Optional[Film]:
-        data = await self._redis.redis.get(film_id)
-        if not data:
-            return None
-
-        film = Film.parse_raw(data)
-        return film
-
-    async def _put_film_to_cache(self, film: Film):
-        await self._redis.redis.set(
-            film.id, film.json(), core.FILM_CACHE_EXPIRE_IN_SECONDS
-        )
 
     async def _get_films_genre_sort(
         self, params: dict,
