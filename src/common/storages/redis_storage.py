@@ -26,7 +26,9 @@ class RedisStorage(BaseCacheStorage):
     async def get_key(self, params: dict[str, Any]) -> str:
         return f'{self.cache_prefix}:{json.dumps({"params": params}, sort_keys=True)}'
 
-    async def serialize(self, value: list[dict[str, Any]]) -> bytes:
+    async def serialize(
+        self, value: list[dict[str, Any]] | list[str]
+    ) -> bytes:
         return orjson.dumps(value)
 
     async def deserialize(self, value: str) -> list:
@@ -39,7 +41,7 @@ class RedisStorage(BaseCacheStorage):
 
         return data
 
-    async def put_to_cache(self, key: str, value: bytes) -> None:
+    async def put_to_cache(self, key: str, value: bytes | str) -> None:
         await self._redis.redis.set(
             key,
             value,
