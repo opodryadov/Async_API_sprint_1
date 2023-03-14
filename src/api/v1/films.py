@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.common.utils import query_params
 from src.models import Film, FilmShort
@@ -20,9 +20,10 @@ router = APIRouter()
 )
 async def list_films(
     params: dict = Depends(query_params),
+    genre: str | None = Query(default=""),
     film_service: FilmService = Depends(FilmService)
 ) -> list[FilmShort]:
-    films = await film_service.get_all_films(params)
+    films = await film_service.get_all_films(params, genre)
     if not films:
         return []
 

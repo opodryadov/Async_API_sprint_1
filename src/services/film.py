@@ -23,8 +23,8 @@ class FilmService:
 
         return film
 
-    async def get_all_films(self, params: dict) -> Optional[list[FilmShort]]:
-        films = await self._get_films_genre_sort(params)
+    async def get_all_films(self, params: dict, genre: str) -> Optional[list[FilmShort]]:
+        films = await self._get_films_genre_sort(params, genre)
         if not films:
             return None
 
@@ -57,7 +57,10 @@ class FilmService:
             film.id, film.json(), core.FILM_CACHE_EXPIRE_IN_SECONDS
         )
 
-    async def _get_films_genre_sort(self, params: dict) -> Optional[list[FilmShort]]:
+    async def _get_films_genre_sort(
+        self, params: dict,
+        genre: str
+    ) -> Optional[list[FilmShort]]:
         body = {
             "from": params.get("page_number"),
             "size": params.get("page_size"),
@@ -68,7 +71,7 @@ class FilmService:
                     "path": "genre",
                     "query": {
                         "match": {
-                            "genre.id": params.get("query")
+                            "genre.id": genre
                         }
                     },
                 }
