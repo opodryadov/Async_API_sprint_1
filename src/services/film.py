@@ -58,38 +58,68 @@ class FilmService:
     async def _get_films_genre_sort(
         self, params: dict, genre: str
     ) -> Optional[list[FilmShort]]:
-        body = {
-            "from": params.get("page_number"),
-            "size": params.get("page_size"),
-            "query": {"match_all": {}}
-            if not params.get("genre")
-            else {
-                "nested": {
-                    "path": "genre",
-                    "query": {"match": {"genre.id": genre}},
-                }
+        query = dict(
+            index="movies",
+            body={
+                "from": params.get("page_number"),
+                "size": params.get("page_size"),
+                "query": {"match_all": {}}
+                if not params.get("genre")
+                else {
+                    "nested": {
+                        "path": "genre",
+                        "query": {"match": {"genre.id": genre}},
+                    }
+                },
+                "sort": params.get("sort"),
             },
-            "sort": params.get("sort"),
-        }
-        docs = await self._es_storage.search(index="movies", body=body)
-        return [FilmShort(**doc["_source"]) for doc in docs]
+        )
+        key = await self._redis_storage.get_key(query)
+        films = await self._redis_storage.get_from_cache(key=key)
+        if films:
+            films_deserialize = await self._redis_storage.deserialize(films)
+            films = [FilmShort.parse_raw(film) for film in films_deserialize]
+            return films
+
+        docs = await self._es_storage.search(**query)
+        films = [FilmShort(**doc["_source"]) for doc in docs]
+        films_serialize = await self._redis_storage.serialize(
+            [film.json() for film in films]
+        )
+        await self._redis_storage.put_to_cache(key=key, value=films_serialize)
+        return films
 
     async def _search_films(self, params: dict):
-        body = {
-            "from": params.get("page_number"),
-            "size": params.get("page_size"),
-            "query": {
-                "bool": {
-                    "must": {
-                        "multi_match": {
-                            "query": params.get("query"),
-                            "type": "most_fields",
-                            "fields": ["title", "description"],
+        query = dict(
+            index="movies",
+            body={
+                "from": params.get("page_number"),
+                "size": params.get("page_size"),
+                "query": {
+                    "bool": {
+                        "must": {
+                            "multi_match": {
+                                "query": params.get("query"),
+                                "type": "most_fields",
+                                "fields": ["title", "description"],
+                            }
                         }
                     }
-                }
+                },
+                "sort": params.get("sort"),
             },
-            "sort": params.get("sort"),
-        }
-        docs = await self._es_storage.search(index="movies", body=body)
-        return [FilmShort(**doc["_source"]) for doc in docs]
+        )
+        key = await self._redis_storage.get_key(query)
+        films = await self._redis_storage.get_from_cache(key=key)
+        if films:
+            films_deserialize = await self._redis_storage.deserialize(films)
+            films = [FilmShort.parse_raw(film) for film in films_deserialize]
+            return films
+
+        docs = await self._es_storage.search(**query)
+        films = [FilmShort(**doc["_source"]) for doc in docs]
+        films_serialize = await self._redis_storage.serialize(
+            [film.json() for film in films]
+        )
+        await self._redis_storage.put_to_cache(key=key, value=films_serialize)
+        return films
