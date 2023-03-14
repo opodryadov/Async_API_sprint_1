@@ -3,7 +3,7 @@ from typing import Optional
 
 from elasticsearch import NotFoundError
 
-from src.common.connectors.es import ESConnector
+from src.common.storages.es_storage import EsStorage
 from src.common.storages.redis_storage import RedisStorage
 from src.models import Film, Person, PersonRole
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class PersonService:
     def __init__(self):
-        self._elastic = ESConnector()
+        self._es_storage = EsStorage()
         self._redis_storage = RedisStorage()
 
     async def get_person_by_id(self, person_id) -> Optional[dict]:
@@ -32,60 +32,31 @@ class PersonService:
 
         return person.dict()
 
-    async def _get_films_by_actor(self, person_id: str):
+    async def _get_films_by_role(self, person_id: str, role: str):
         body = {
             "query": {
                 "nested": {
-                    "path": "actors",
-                    "query": {"match": {"actors.id": f"{person_id}"}},
+                    "path": role,
+                    "query": {"match": {f"{role}.id": f"{person_id}"}},
                 }
             }
         }
-        docs = await self._elastic.es.search(index="movies", body=body)
-        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
-
-        return movies
-
-    async def _get_films_by_writer(self, person_id: str):
-        body = {
-            "query": {
-                "nested": {
-                    "path": "writers",
-                    "query": {"match": {"writers.id": f"{person_id}"}},
-                }
-            }
-        }
-        docs = await self._elastic.es.search(index="movies", body=body)
-        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
-
-        return movies
-
-    async def _get_films_by_director(self, person_id: str):
-        body = {
-            "query": {
-                "nested": {
-                    "path": "directors",
-                    "query": {"match": {"directors.id": f"{person_id}"}},
-                }
-            }
-        }
-        docs = await self._elastic.es.search(index="movies", body=body)
-        movies = [Film(**doc["_source"]) for doc in docs["hits"]["hits"]]
-
+        docs = await self._es_storage.search(index="movies", body=body)
+        movies = [Film(**doc["_source"]) for doc in docs]
         return movies
 
     async def _get_films_roles(self, person_id: str):
         movies_director = {
             movie.id: PersonRole.DIRECTOR
-            for movie in await self._get_films_by_director(person_id)
+            for movie in await self._get_films_by_role(person_id, "directors")
         }
         movies_writer = {
             movie.id: PersonRole.WRITER
-            for movie in await self._get_films_by_writer(person_id)
+            for movie in await self._get_films_by_role(person_id, "writers")
         }
         movies_actor = {
             movie.id: PersonRole.ACTOR
-            for movie in await self._get_films_by_actor(person_id)
+            for movie in await self._get_films_by_role(person_id, "actors")
         }
         movies = dict()
 
@@ -105,13 +76,15 @@ class PersonService:
 
     async def _get_person_elastic(self, person_id: str) -> Optional[Person]:
         try:
-            doc = await self._elastic.es.get(index="persons", id=person_id)
+            doc = await self._es_storage.get_by_id(
+                index="persons", doc_id=person_id
+            )
         except NotFoundError:
             logger.error(
                 "Person was not found in ES: %s", person_id, exc_info=True
             )
             return None
-        person = Person(**doc["_source"])
+        person = Person(**doc)
         return person
 
     async def _enrich_person(self, person: Person) -> Optional[Person]:
@@ -122,9 +95,9 @@ class PersonService:
         return person
 
     async def get_films_by_person_id(self, person_id: str):
-        films_director = await self._get_films_by_director(person_id)
-        films_writer = await self._get_films_by_writer(person_id)
-        films_actor = await self._get_films_by_actor(person_id)
+        films_director = await self._get_films_by_role(person_id, "directors")
+        films_writer = await self._get_films_by_role(person_id, "writers")
+        films_actor = await self._get_films_by_role(person_id, "actors")
         films = films_director + films_writer + films_actor
         if not films:
             return None
@@ -162,8 +135,8 @@ class PersonService:
                     "from": params.get("page_number") - 1,
                 },
             )
-        docs = await self._elastic.es.search(**query)
-        return [Person(**doc["_source"]) for doc in docs["hits"]["hits"]]
+        docs = await self._es_storage.search(**query)
+        return [Person(**doc["_source"]) for doc in docs]
 
     async def person_search(self, params: dict):
         persons = await self._get_list_genres_elastic(params)

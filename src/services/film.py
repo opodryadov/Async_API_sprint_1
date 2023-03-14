@@ -1,15 +1,16 @@
 from typing import Optional
 
 from elasticsearch import NotFoundError
-from src.common.connectors.es import ESConnector
+
+from src.common.storages.es_storage import EsStorage
 from src.common.storages.redis_storage import RedisStorage
 from src.models import Film, FilmShort
 
 
 class FilmService:
     def __init__(self):
-        self._elastic = ESConnector()
         self._redis_storage = RedisStorage()
+        self._es_storage = EsStorage()
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
         film = await self._redis_storage.get_from_cache(key=film_id)
@@ -40,7 +41,9 @@ class FilmService:
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
-            doc = await self._elastic.es.get("movies", film_id)
+            doc = await self._es_storage.get_by_id(
+                index="movies", doc_id=film_id
+            )
         except NotFoundError:
             return None
         return Film(**doc["_source"])
