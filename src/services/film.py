@@ -23,58 +23,19 @@ class FilmService:
 
         return film
 
-    async def get_all_films(
-        self,
-        genre_uuid: str,
-        sort: dict,
-        page_size: int,
-        page_number: int
-    ) -> Optional[list[FilmShort]]:
-        body = {
-            "from": page_number,
-            "size": page_size,
-            "query": {
-                "match_all": {}
-            } if not genre_uuid else {
-                "nested": {
-                    "path": "genre",
-                    "query": {
-                        "match": {
-                            "genre.id": f"{genre_uuid}"
-                        }
-                    },
-                }
-            },
-            "sort": [sort]
-        }
-        films = await self._elastic.es.search(index="movies", body=body)
+    async def get_all_films(self, params: dict) -> Optional[list[FilmShort]]:
+        films = await self._get_films_genre_sort(params)
+        if not films:
+            return None
 
-        return [FilmShort(**film["_source"]) for film in films["hits"]["hits"]]
+        return films
 
-    async def search_films(
-        self,
-        query: str,
-        page_size: int,
-        page_number: int
-    ) -> Optional[list[FilmShort]]:
-        body = {
-            "from": page_number,
-            "size": page_size,
-            "query": {
-                "bool": {
-                    "must": {
-                        "multi_match": {
-                            "query": query,
-                            "type": "most_fields",
-                            "fields": ["title", "description"]
-                        }
-                    }
-                }
-            }
-        }
-        films = await self._elastic.es.search(index="movies", body=body)
+    async def search_films(self, params: dict) -> Optional[list[FilmShort]]:
+        films = await self._search_films(params)
+        if not films:
+            return None
 
-        return [FilmShort(**film["_source"]) for film in films["hits"]["hits"]]
+        return films
 
     async def _get_film_from_elastic(self, film_id: str) -> Optional[Film]:
         try:
@@ -95,3 +56,43 @@ class FilmService:
         await self._redis.redis.set(
             film.id, film.json(), core.FILM_CACHE_EXPIRE_IN_SECONDS
         )
+
+    async def _get_films_genre_sort(self, params: dict) -> Optional[list[FilmShort]]:
+        body = {
+            "from": params.get("page_number"),
+            "size": params.get("page_size"),
+            "query": {
+                "match_all": {}
+            } if not params.get("genre") else {
+                "nested": {
+                    "path": "genre",
+                    "query": {
+                        "match": {
+                            "genre.id": params.get("genre")
+                        }
+                    },
+                }
+            },
+            "sort": params.get("sort")
+        }
+        docs = await self._elastic.es.search(index="movies", body=body)
+        return [FilmShort(**doc["_source"]) for doc in docs["hits"]["hits"]]
+
+    async def _search_films(self, params: dict):
+        body = {
+            "from": params.get("page_number"),
+            "size": params.get("page_size"),
+            "query": {
+                "bool": {
+                    "must": {
+                        "multi_match": {
+                            "query": params.get("query"),
+                            "type": "most_fields",
+                            "fields": ["title", "description"]
+                        }
+                    }
+                }
+            }
+        }
+        docs = await self._elastic.es.search(index="movies", body=body)
+        return [FilmShort(**doc["_source"]) for doc in docs["hits"]["hits"]]
