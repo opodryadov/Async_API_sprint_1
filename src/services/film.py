@@ -46,7 +46,7 @@ class FilmService:
             )
         except NotFoundError:
             return None
-        return Film(**doc["_source"])
+        return Film(**doc)
 
     async def _get_films_genre_sort(
         self, params: dict,
