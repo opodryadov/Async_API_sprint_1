@@ -2,24 +2,13 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from src.common.utils import query_params, filter_sort_query_params
 from src.models import Film, FilmShort
+from src.models.response import BadRequest, NotFound
 from src.services.film import FilmService
 
 
 router = APIRouter()
-
-
-def get_sort(field: str) -> dict:
-    if not field or field not in \
-            ("title", "-title", "imdb_rating", "-imdb_rating"):
-        return {}
-
-    method = "desc" if "-" in field else "asc"
-    field = field.replace("-", "")
-    if "title" in field:
-        field = field.replace("title", "title.raw")
-
-    return {field: method}
 
 
 @router.get(
@@ -29,19 +18,11 @@ def get_sort(field: str) -> dict:
     description="Список фильмов с пагинацией, фильтрацией по жанрам и сортировкой по названию и рейтингу",
     response_description="Список фильмов с UUID, названием и рейтингом"
 )
-async def all_films_details(
-    genre: str = "",
-    sort: str = "",
-    page_number: int = 0,
-    page_size: int = 10,
+async def list_films(
+    params: dict = Depends(filter_sort_query_params),
     film_service: FilmService = Depends(FilmService)
 ) -> list[FilmShort]:
-    films = await film_service.get_all_films(
-        genre_uuid=genre,
-        sort=get_sort(sort),
-        page_size=page_size,
-        page_number=page_number
-    )
+    films = await film_service.get_all_films(params)
     if not films:
         return []
 
@@ -55,17 +36,11 @@ async def all_films_details(
     description="Поиск фильма по названию или описанию",
     response_description="Список фильмов с UUID, названием и рейтингом",
 )
-async def search_film(
-    query: str = "",
-    page_number: int = 0,
-    page_size: int = 10,
+async def search_films(
+    params: dict = Depends(query_params),
     film_service: FilmService = Depends(FilmService)
 ) -> list[FilmShort]:
-    films = await film_service.search_films(
-        query=query,
-        page_size=page_size,
-        page_number=page_number
-    )
+    films = await film_service.search_films(params)
     if not films:
         return []
 
@@ -77,6 +52,7 @@ async def search_film(
     response_model=Film,
     summary="Информация по фильму",
     description="Полная информация по фильму",
+    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     response_description="UUID, название, рейтинг, описание, жанр, актёры, сценаристы, режиссёры",
 )
 async def film_details(
