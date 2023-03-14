@@ -80,9 +80,7 @@ class PersonService:
                 index="persons", doc_id=person_id
             )
         except NotFoundError:
-            logger.error(
-                "Person was not found in ES: %s", person_id, exc_info=True
-            )
+            logger.error("Person was not found in ES: %s", person_id)
             return None
         person = Person(**doc)
         return person

@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from elasticsearch import NotFoundError
@@ -5,6 +6,9 @@ from elasticsearch import NotFoundError
 from src.common.storages.es_storage import EsStorage
 from src.common.storages.redis_storage import RedisStorage
 from src.models import Genre
+
+
+logger = logging.getLogger(__name__)
 
 
 class GenreService:
@@ -46,5 +50,6 @@ class GenreService:
                 index="genres", doc_id=genre_id
             )
         except NotFoundError:
+            logger.error("Genre was not found in ES: %s", genre_id)
             return None
         return Genre(**doc)
