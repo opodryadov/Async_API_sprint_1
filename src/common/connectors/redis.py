@@ -1,6 +1,6 @@
 import aioredis
 
-from src import core
+from src.core import settings
 
 
 class RedisConnector:
@@ -9,7 +9,7 @@ class RedisConnector:
     @classmethod
     async def setup(cls):
         cls.redis = await aioredis.from_url(
-            url=f"redis://{core.REDIS_HOST}:{core.REDIS_PORT}",
+            url=f"redis://{settings.redis_host}:{settings.redis_port}",
             encoding="utf-8",
             decode_responses=True,
         )
