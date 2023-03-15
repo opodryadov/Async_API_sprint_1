@@ -21,8 +21,8 @@ async def get_sort(field: str) -> dict:
 async def query_params(
     query: str | None = Query(default=""),
     sort: str | None = Query(default=""),
-    page_number: int | None = Query(default=1),
-    page_size: int | None = Query(default=50),
+    page_number: int | None = Query(default=0, ge=0),
+    page_size: int | None = Query(default=50, ge=0, le=200),
 ) -> dict:
     return {
         "query": query,
