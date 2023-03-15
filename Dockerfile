@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir --upgrade -r /opt/app/requirements.txt
 
 COPY . .
 
-CMD ["python", "./manage.py", "api"]
+CMD ["gunicorn", "main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]

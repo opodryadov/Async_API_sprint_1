@@ -2,7 +2,7 @@ import logging
 
 import click
 
-from src.core import base, logger
+from src.core import logger, settings
 
 
 @click.group()
@@ -14,12 +14,12 @@ def cli():
 def api():
     import uvicorn
 
-    from src.main import create_app
+    from src.main import app
 
     uvicorn.run(
-        create_app(),
-        host=base.PROJECT_HOST,
-        port=base.PROJECT_PORT,
+        app,
+        host=settings.project_host,
+        port=settings.project_port,
         log_config=logger.LOGGING,
         log_level=logging.DEBUG,
     )

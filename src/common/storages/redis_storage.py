@@ -5,7 +5,7 @@ from typing import Any
 
 import orjson
 
-from src import core
+from src.core import settings
 from src.common.connectors.redis import RedisConnector
 from src.common.storages.base import BaseCacheStorage
 
@@ -45,5 +45,5 @@ class RedisStorage(BaseCacheStorage):
         await self._redis.redis.set(
             key,
             value,
-            core.CACHE_EXPIRE_IN_SECONDS,
+            settings.cache_expire,
         )

@@ -137,7 +137,7 @@ class PersonService:
                 },
                 params={
                     "size": params.get("page_size"),
-                    "from": params.get("page_number") - 1,
+                    "from": params.get("page_number"),
                 },
             )
         else:
@@ -146,7 +146,7 @@ class PersonService:
                 body={"query": {"match_all": {}}},
                 params={
                     "size": params.get("page_size"),
-                    "from": params.get("page_number") - 1,
+                    "from": params.get("page_number"),
                 },
             )
 

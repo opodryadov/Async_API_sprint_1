@@ -1,6 +1,6 @@
 from elasticsearch import AsyncElasticsearch
 
-from src import core
+from src.core import settings
 
 
 class ESConnector:
@@ -9,7 +9,7 @@ class ESConnector:
     @classmethod
     async def setup(cls):
         cls.es = AsyncElasticsearch(
-            hosts=[f"http://{core.ELASTIC_HOST}:{core.ELASTIC_PORT}"],
+            hosts=[f"http://{settings.elastic_host}:{settings.elastic_port}"],
         )
 
     @classmethod

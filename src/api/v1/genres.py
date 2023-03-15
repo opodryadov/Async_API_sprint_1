@@ -44,8 +44,8 @@ async def genre_details(
 )
 async def list_genres(
     genre_service: GenreService = Depends(GenreService),
-    page_number: int | None = Query(default=1),
-    page_size: int | None = Query(default=50),
+    page_number: int | None = Query(default=0, ge=0),
+    page_size: int | None = Query(default=50, ge=0, le=200),
 ) -> list[dict]:
     params = dict(page_number=page_number, page_size=page_size)
     genres = await genre_service.get_list_genres(params)

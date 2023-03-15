@@ -34,7 +34,7 @@ class GenreService:
             body={"query": {"match_all": {}}},
             params={
                 "size": params.get("page_size"),
-                "from": params.get("page_number") - 1,
+                "from": params.get("page_number"),
             },
         )
         key = await self._redis_storage.get_key(query)

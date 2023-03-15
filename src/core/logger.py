@@ -1,3 +1,8 @@
+from logging import config as logging_config
+
+from src.core import settings
+
+
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_DEFAULT_HANDLERS = [
     "console",
@@ -38,7 +43,7 @@ LOGGING = {
     "loggers": {
         "": {
             "handlers": LOG_DEFAULT_HANDLERS,
-            "level": "INFO",
+            "level": settings.log_format,
         },
         "uvicorn.error": {
             "level": "INFO",
@@ -55,3 +60,5 @@ LOGGING = {
         "handlers": LOG_DEFAULT_HANDLERS,
     },
 }
+
+logging_config.dictConfig(LOGGING)
