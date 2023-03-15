@@ -29,6 +29,16 @@ services:
       - es
       - redis
 
+  nginx:
+    build: ./nginx
+    restart: always
+    networks:
+      - "dev-app"
+    ports:
+      - 8000:80
+    depends_on:
+      - fastapi
+
 volumes:
     elasticsearch_data:
     elasticsearch_logs:
