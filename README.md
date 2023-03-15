@@ -1,6 +1,6 @@
 ## Async API
 
-## Обратите внимание
+##  Обратите внимание
 Доработанный ETL располагается в ветке [**etl**](https://github.com/opodryadov/Async_API_sprint_1/tree/etl) данного репозитория!
 
 
@@ -13,4 +13,9 @@ docker-compose up -d --build
 ```bash
 pip3 install poetry==1.2.2
 poetry install --no-root && poetry shell
+python .\manage.py api
 ```
+
+###  Тест API
+[Swagger](http://127.0.0.1:8000/api/swagger)
+
