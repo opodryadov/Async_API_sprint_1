@@ -14,7 +14,13 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.get("/search", response_model=list[Person])
+@router.get(
+    "/search",
+    response_model=list[Person],
+    summary="Поиск по персонам",
+    description="Поиск по персонам.",
+    response_description="Результат поиска.",
+)
 async def search_persons(
     person_service: PersonService = Depends(PersonService),
     params: dict = Depends(query_params),
@@ -29,6 +35,9 @@ async def search_persons(
     "/{person_id}",
     response_model=Person,
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    summary="Получить информацию о персоне",
+    description="Получить информацию о персоне.",
+    response_description="Подробная информация о персоне.",
 )
 async def person_details(
     person_id: str,
@@ -48,6 +57,9 @@ async def person_details(
     "/{person_id}/film",
     response_model=list[PersonFilm],
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    summary="Получить фильмы по персоне",
+    description="Получить фильмы по персоне.",
+    response_description="Фильмы по персоне.",
 )
 async def list_film_by_person(
     person_id: str,

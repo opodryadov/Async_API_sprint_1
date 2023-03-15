@@ -2,8 +2,12 @@ from fastapi import Query
 
 
 async def get_sort(field: str) -> dict:
-    if not field or field not in \
-            ("title", "-title", "imdb_rating", "-imdb_rating"):
+    if not field or field not in (
+        "title",
+        "-title",
+        "imdb_rating",
+        "-imdb_rating",
+    ):
         return {}
 
     method = "desc" if "-" in field else "asc"
