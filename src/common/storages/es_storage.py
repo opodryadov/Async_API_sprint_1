@@ -17,9 +17,9 @@ class EsStorage(BaseDataStorage):
     async def get_by_id(self, index: str, doc_id: str) -> dict | None:
         try:
             doc = await self._elastic.es.get(index=index, id=doc_id)
-        except Exception:
+        except NotFoundError:
             logger.error(
-                "Failed to get the document in ES: doc_id %s index %s",
+                "Document was not found in ES: doc_id %s index %s",
                 doc_id,
                 index,
                 exc_info=True,
@@ -32,27 +32,20 @@ class EsStorage(BaseDataStorage):
         return docs["hits"]["hits"]
 
     async def get_person(self, person_id: str) -> Person | None:
-        try:
-            doc = await self.get_by_id(index="persons", doc_id=person_id)
-        except NotFoundError:
-            logger.error("Person was not found in ES: %s", person_id)
+        doc = await self.get_by_id(index="persons", doc_id=person_id)
+        if not doc:
             return None
-        person = Person(**doc)
-        return person
+        return Person(**doc)
 
     async def get_genre(self, genre_id: str) -> Genre | None:
-        try:
-            doc = await self.get_by_id(index="genres", doc_id=genre_id)
-        except NotFoundError:
-            logger.error("Genre was not found in ES: %s", genre_id)
+        doc = await self.get_by_id(index="genres", doc_id=genre_id)
+        if not doc:
             return None
         return Genre(**doc)
 
     async def get_film(self, film_id: str) -> Film | None:
-        try:
-            doc = await self.get_by_id(index="movies", doc_id=film_id)
-        except NotFoundError:
-            logger.error("Film was not found in ES: %s", film_id)
+        doc = await self.get_by_id(index="movies", doc_id=film_id)
+        if not doc:
             return None
         return Film(**doc)
 
