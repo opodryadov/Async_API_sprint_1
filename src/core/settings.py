@@ -7,6 +7,9 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
+    project_host: str = Field(env="PROJECT_HOST", default="127.0.0.1")
+    project_port: int = Field(env="PROJECT_PORT", default="8000")
+
     elastic_host: str = Field(env="ELASTIC_HOST", default="es")
     elastic_port: int = Field(env="ELASTIC_PORT", default=9200)
 
