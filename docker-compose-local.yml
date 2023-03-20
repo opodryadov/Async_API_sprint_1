@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  es:
+    ports:
+      - "9200:9200"
+    networks:
+      - "test-app"
+
+  redis:
+    ports:
+      - "6379:6379"
+    networks:
+      - "test-app"
+
+  fastapi:
+    networks:
+      - "test-app"
+    ports:
+      - "8000:8000"
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    entrypoint: >
+      sh -c "python3 tests/wait_for_es.py
+      && python3 tests/wait_for_redis.py
+      &&  pytest tests/functional"
+    networks:
+      - "test-app"
+
+volumes:
+    es_data:
+    es_logs:
+    redis_data:
+networks:
+  test-app:

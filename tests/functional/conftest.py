@@ -2,7 +2,7 @@ import pytest_asyncio
 from aioresponses import aioresponses
 from httpx import AsyncClient
 
-from src.main import create_app
+from src.main import app
 
 
 @pytest_asyncio.fixture(autouse=True)
@@ -13,7 +13,6 @@ def mock_aioresponse():
 
 @pytest_asyncio.fixture
 async def test_app():
-    app = create_app()
     await app.router.startup()
     try:
         yield app

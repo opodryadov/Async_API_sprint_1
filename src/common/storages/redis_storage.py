@@ -5,9 +5,9 @@ from typing import Any
 
 import orjson
 
-from src.core import settings
 from src.common.connectors.redis import RedisConnector
 from src.common.storages.base import BaseCacheStorage
+from src.core import settings
 
 
 logger = logging.getLogger(__name__)

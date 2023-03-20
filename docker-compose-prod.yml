@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  nginx:
+    build: ./nginx
+    restart: always
+    networks:
+      - "dev-app"
+    ports:
+      - 8000:80
+    depends_on:
+      - fastapi
+
+volumes:
+    elasticsearch_data:
+    elasticsearch_logs:
+    redis_data:
+
+networks:
+  dev-app:

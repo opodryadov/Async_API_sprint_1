@@ -1,12 +1,11 @@
 from dotenv import load_dotenv
-from pydantic import BaseSettings
-from pydantic.fields import Field
+from pydantic import BaseSettings, Field
 
 
 load_dotenv()
 
 
-class Settings(BaseSettings):
+class TestSettings(BaseSettings):
     project_host: str = Field(env="PROJECT_HOST", default="0.0.0.0")
     project_port: int = Field(env="PROJECT_PORT", default="8000")
 
@@ -18,11 +17,11 @@ class Settings(BaseSettings):
 
     cache_expire: int = Field(env="CACHE_EXPIRE_IN_SECONDS", default=300)
 
-    log_format: str = Field(env="LOG_FORMAT", default="INFO")
+    log_format: str = Field(env="LOG_FORMAT", default="DEBUG")
 
     class Config:
-        env_file: str = ".env"
+        env_file: str = ".env_test"
         env_file_encoding: str = "utf-8"
 
 
-settings = Settings()
+settings = TestSettings()
