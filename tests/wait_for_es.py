@@ -2,7 +2,7 @@ import logging
 
 import backoff
 from elasticsearch import ConnectionError, Elasticsearch
-from functional.core import settings
+from functional.core import test_settings
 
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 )
 def ping_es():
     es_client = Elasticsearch(
-        hosts=f"http://{settings.elastic_host}:{settings.elastic_port}",
+        hosts=f"http://{test_settings.elastic_host}:{test_settings.elastic_port}",
         validate_cert=False,
         use_ssl=False,
     )

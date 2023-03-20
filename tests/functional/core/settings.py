@@ -1,5 +1,7 @@
+from pathlib import Path
+
 from dotenv import load_dotenv
-from pydantic import BaseSettings, Field
+from pydantic import BaseModel, BaseSettings, Field
 
 
 load_dotenv()
@@ -11,6 +13,8 @@ class TestSettings(BaseSettings):
 
     elastic_host: str = Field(env="ELASTIC_HOST", default="es")
     elastic_port: int = Field(env="ELASTIC_PORT", default=9200)
+    es_index: str = Field(env="ELASTIC_INDEX", default="movies")
+    es_id_field: str = Field(env="ELASTIC_FIELD", default="id")
 
     redis_host: str = Field(env="REDIS_HOST", default="redis")
     redis_port: int = Field(env="REDIS_PORT", default=6379)
@@ -24,4 +28,12 @@ class TestSettings(BaseSettings):
         env_file_encoding: str = "utf-8"
 
 
-settings = TestSettings()
+test_settings = TestSettings()
+
+
+class ESIndexSettings(BaseModel):
+    """Модель настроек, для конкретного индекса."""
+
+    index_name: str
+    schema_file_path: Path
+    data_file_path: Path

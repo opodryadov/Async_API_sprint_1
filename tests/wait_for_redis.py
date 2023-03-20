@@ -1,7 +1,7 @@
 import logging
 
 import backoff
-from functional.core import settings
+from functional.core import test_settings
 from redis import Redis, exceptions
 
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 )
 def ping_redis():
     redis = Redis(
-        host=settings.redis_host, port=settings.redis_port, ssl=False
+        host=test_settings.redis_host, port=test_settings.redis_port, ssl=False
     )
     if not redis.ping():
         logger.warning("Redis is not ready")
