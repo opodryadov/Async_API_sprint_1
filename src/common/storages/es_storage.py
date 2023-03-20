@@ -1,8 +1,10 @@
 import logging
+from functools import lru_cache
 
-from elasticsearch import NotFoundError
+from elasticsearch import AsyncElasticsearch, NotFoundError
+from fastapi import Depends
 
-from src.common.connectors.es import ESConnector
+from src.common.db.elastic import get_elastic
 from src.common.storages.base import BaseDataStorage
 from src.models import Film, FilmShort, Genre, Person
 
@@ -11,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class EsStorage(BaseDataStorage):
-    def __init__(self):
-        self._elastic = ESConnector()
+    def __init__(self, elastic: AsyncElasticsearch):
+        self._elastic = elastic
 
     async def get_by_id(self, index: str, doc_id: str) -> dict | None:
         try:
-            doc = await self._elastic.es.get(index=index, id=doc_id)
+            doc = await self._elastic.get(index=index, id=doc_id)
         except NotFoundError:
             logger.error(
                 "Document was not found in ES: doc_id %s index %s",
@@ -28,7 +30,7 @@ class EsStorage(BaseDataStorage):
         return doc["_source"]
 
     async def search(self, *args, **kwargs) -> dict:
-        docs = await self._elastic.es.search(*args, **kwargs)
+        docs = await self._elastic.search(*args, **kwargs)
         return docs["hits"]["hits"]
 
     async def get_person(self, person_id: str) -> Person | None:
@@ -68,3 +70,10 @@ class EsStorage(BaseDataStorage):
         docs = await self.search(**query)
         persons = [Person(**doc["_source"]) for doc in docs]
         return persons
+
+
+@lru_cache()
+def get_elastic_storage_service(
+    elastic: AsyncElasticsearch = Depends(get_elastic),
+) -> EsStorage:
+    return EsStorage(elastic)

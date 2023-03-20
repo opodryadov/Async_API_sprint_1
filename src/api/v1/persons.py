@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.common.utils import query_params
 from src.models import Person, PersonFilm
 from src.models.response import BadRequest, NotFound
-from src.services.person import PersonService
+from src.services.person import PersonService, get_person_service
 
 
 router = APIRouter()
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
     response_description="Результат поиска.",
 )
 async def search_persons(
-    person_service: PersonService = Depends(PersonService),
+    person_service: PersonService = Depends(get_person_service),
     params: dict = Depends(query_params),
 ) -> list[dict]:
     persons = await person_service.person_search(params)
@@ -41,7 +41,7 @@ async def search_persons(
 )
 async def person_details(
     person_id: str,
-    person_service: PersonService = Depends(PersonService),
+    person_service: PersonService = Depends(get_person_service),
 ) -> dict:
     person = await person_service.get_person_by_id(person_id)
     if not person:
@@ -63,7 +63,7 @@ async def person_details(
 )
 async def list_film_by_person(
     person_id: str,
-    person_service: PersonService = Depends(PersonService),
+    person_service: PersonService = Depends(get_person_service),
 ) -> list[dict]:
     films = await person_service.get_films_by_person_id(person_id)
     if not films:
