@@ -32,8 +32,6 @@ test_settings = TestSettings()
 
 
 class ESIndexSettings(BaseModel):
-    """Модель настроек, для конкретного индекса."""
-
     index_name: str
     schema_file_path: Path
     data_file_path: Path
