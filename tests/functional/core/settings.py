@@ -1,13 +1,14 @@
+from pathlib import Path
+
 from dotenv import load_dotenv
-from pydantic import BaseSettings
-from pydantic.fields import Field
+from pydantic import BaseModel, BaseSettings, Field
 
 
 load_dotenv()
 
 
-class Settings(BaseSettings):
-    project_host: str = Field(env="PROJECT_HOST", default="0.0.0.0")
+class TestSettings(BaseSettings):
+    project_host: str = Field(env="PROJECT_HOST", default="fastapi")
     project_port: int = Field(env="PROJECT_PORT", default="8000")
 
     elastic_host: str = Field(env="ELASTIC_HOST", default="es")
@@ -18,11 +19,17 @@ class Settings(BaseSettings):
 
     cache_expire: int = Field(env="CACHE_EXPIRE_IN_SECONDS", default=300)
 
-    log_format: str = Field(env="LOG_FORMAT", default="INFO")
+    log_format: str = Field(env="LOG_FORMAT", default="DEBUG")
 
     class Config:
-        env_file: str = ".env"
+        env_file: str = ".env_test"
         env_file_encoding: str = "utf-8"
 
 
-settings = Settings()
+test_settings = TestSettings()
+
+
+class ESIndexSettings(BaseModel):
+    index_name: str
+    schema_file_path: Path
+    data_file_path: Path

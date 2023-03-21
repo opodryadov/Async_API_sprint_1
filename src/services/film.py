@@ -1,8 +1,17 @@
 import logging
+from functools import lru_cache
 from typing import Optional
 
-from src.common.storages.es_storage import EsStorage
-from src.common.storages.redis_storage import RedisStorage
+from fastapi import Depends
+
+from src.common.storages.es_storage import (
+    EsStorage,
+    get_elastic_storage_service,
+)
+from src.common.storages.redis_storage import (
+    RedisStorage,
+    get_redis_storage_service,
+)
 from src.models import Film, FilmShort
 
 
@@ -10,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 class FilmService:
-    def __init__(self):
-        self._redis_storage = RedisStorage()
-        self._es_storage = EsStorage()
+    def __init__(self, redis_storage: RedisStorage, es_storage: EsStorage):
+        self._redis_storage = redis_storage
+        self._es_storage = es_storage
 
     async def get_film_by_id(self, film_id: str) -> Optional[Film]:
         film = await self._redis_storage.get_from_cache(key=film_id)
@@ -117,3 +126,11 @@ class FilmService:
         )
         await self._redis_storage.put_to_cache(key=key, value=films_serialize)
         return short_films
+
+
+@lru_cache()
+def get_film_service(
+    redis: RedisStorage = Depends(get_redis_storage_service),
+    elastic: EsStorage = Depends(get_elastic_storage_service),
+) -> FilmService:
+    return FilmService(redis, elastic)

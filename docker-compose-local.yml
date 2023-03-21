@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  es:
+    ports:
+      - "8020:9200"
+    networks:
+      - "test-app"
+
+  redis:
+    ports:
+      - "8030:6379"
+    networks:
+      - "test-app"
+
+  fastapi:
+    networks:
+      - "test-app"
+    ports:
+      - "8080:8000"
+    environment:
+      - ELASTIC_HOST=es
+      - ELASTIC_PORT=9200
+      - PROJECT_PORT=8000
+      - PYTHONDONTWRITEBYTECODE=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  tests:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    entrypoint: >
+      sh -c "python3 tests/wait_for_es.py
+      && python3 tests/wait_for_redis.py
+      &&  pytest tests/functional"
+    depends_on:
+      - fastapi
+    networks:
+      - "test-app"
+
+volumes:
+    es_data:
+    es_logs:
+    redis_data:
+networks:
+  test-app:

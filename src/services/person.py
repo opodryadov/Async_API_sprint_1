@@ -1,7 +1,16 @@
 import logging
+from functools import lru_cache
 
-from src.common.storages.es_storage import EsStorage
-from src.common.storages.redis_storage import RedisStorage
+from fastapi import Depends
+
+from src.common.storages.es_storage import (
+    EsStorage,
+    get_elastic_storage_service,
+)
+from src.common.storages.redis_storage import (
+    RedisStorage,
+    get_redis_storage_service,
+)
 from src.models import Film, Person, PersonRole
 
 
@@ -9,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 
 class PersonService:
-    def __init__(self):
-        self._es_storage = EsStorage()
-        self._redis_storage = RedisStorage()
+    def __init__(self, redis_storage: RedisStorage, es_storage: EsStorage):
+        self._redis_storage = redis_storage
+        self._es_storage = es_storage
 
     async def get_person_by_id(self, person_id) -> dict | None:
         person = await self._redis_storage.get_from_cache(key=person_id)
@@ -169,3 +178,11 @@ class PersonService:
             key=key, value=persons_serialize
         )
         return persons
+
+
+@lru_cache()
+def get_person_service(
+    redis: RedisStorage = Depends(get_redis_storage_service),
+    elastic: EsStorage = Depends(get_elastic_storage_service),
+) -> PersonService:
+    return PersonService(redis, elastic)

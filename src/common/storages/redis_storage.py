@@ -1,21 +1,24 @@
 import hashlib
 import json
 import logging
+from functools import lru_cache
 from typing import Any
 
 import orjson
+from aioredis import Redis
+from fastapi import Depends
 
-from src.core import settings
-from src.common.connectors.redis import RedisConnector
+from src.common.db.redis import get_redis
 from src.common.storages.base import BaseCacheStorage
+from src.core import settings
 
 
 logger = logging.getLogger(__name__)
 
 
 class RedisStorage(BaseCacheStorage):
-    def __init__(self):
-        self._redis = RedisConnector()
+    def __init__(self, redis: Redis):
+        self._redis = redis
 
     @property
     def cache_prefix(self):
@@ -35,15 +38,22 @@ class RedisStorage(BaseCacheStorage):
         return orjson.loads(value)
 
     async def get_from_cache(self, key: str) -> str | None:
-        data = await self._redis.redis.get(key)
+        data = await self._redis.get(key)
         if not data:
             return None
 
         return data
 
     async def put_to_cache(self, key: str, value: bytes | str) -> None:
-        await self._redis.redis.set(
+        await self._redis.set(
             key,
             value,
             settings.cache_expire,
         )
+
+
+@lru_cache()
+def get_redis_storage_service(
+    redis: Redis = Depends(get_redis),
+) -> RedisStorage:
+    return RedisStorage(redis)
