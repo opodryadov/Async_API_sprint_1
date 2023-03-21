@@ -31,13 +31,13 @@ async def session(event_loop):
 
 @pytest.fixture
 def make_get_request(session):
-    async def inner(method: str, params: dict = None, json: dict = None):
+    async def inner(method: str, params: dict = None):
         params = params or {}
         url = (
             f"http://{test_settings.project_host}:{test_settings.project_port}"
             + method
         )
-        async with session.get(url, params=params, json=json) as response:
+        async with session.get(url, params=params) as response:
             body = await response.json()
             status = response.status
             return body, status
