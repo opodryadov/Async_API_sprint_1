@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 
 import aiohttp
 import aioredis
@@ -9,6 +10,9 @@ from elasticsearch.helpers import async_bulk
 
 from tests.functional.core import test_settings
 from tests.functional.testdata.consts import INDEXES
+
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -84,14 +88,15 @@ async def write_test_data(es_client: AsyncElasticsearch):
             client=es_client, actions=items, chunk_size=100
         )
         if errors:
-            print("Migration failed: %s", errors)
-        print("Migration: processed %s errors %s", processed, errors)
+            logger.error("Migration failed: %s", errors)
+        logger.info("Migration: processed %s errors %s", processed, errors)
 
 
 @pytest.fixture(scope="session", autouse=True)
 async def es_init(es_client: AsyncElasticsearch):
     await write_test_data(es_client)
 
-    yield
-
-    await flush_indexes(es_client)
+    # удаление индексов
+    # yield
+    #
+    # await flush_indexes(es_client)
