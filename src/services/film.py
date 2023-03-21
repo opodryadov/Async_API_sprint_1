@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import Depends
 
-from src.common.chaches.redis_cache import RedisCacheBase
+from src.common.caches.redis_cache import RedisCacheBase
 from src.common.storages.es_storage import (
     EsStorage,
     get_elastic_storage_service,

@@ -3,7 +3,7 @@ from functools import lru_cache
 from aioredis import Redis
 from fastapi import Depends
 
-from src.common.chaches.redis_cache import RedisCacheBase
+from src.common.caches.redis_cache import RedisCacheBase
 from src.common.db.redis import get_redis
 from src.core import settings
 

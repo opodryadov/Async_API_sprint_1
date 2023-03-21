@@ -4,9 +4,9 @@ from typing import Any
 import orjson
 from aioredis import Redis
 
-from src.common.chaches.base import BaseCache
-from src.common.chaches.consts import DEFAULT_TTL_IN_SECONDS
-from src.common.chaches.serializer import BaseSerializer
+from src.common.caches.base import BaseCache
+from src.common.caches.consts import DEFAULT_TTL_IN_SECONDS
+from src.common.caches.serializer import BaseSerializer
 
 
 class RedisCacheBase(BaseCache, BaseSerializer):
