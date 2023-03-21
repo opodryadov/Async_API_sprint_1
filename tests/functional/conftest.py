@@ -1,31 +1,44 @@
+import asyncio
 import json
 
+import aiohttp
 import aioredis
 import pytest
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from httpx import AsyncClient
 
 from tests.functional.core import test_settings
 from tests.functional.testdata.consts import INDEXES
 
 
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
+async def session(event_loop):
+    session = aiohttp.ClientSession(trust_env=False)
+    yield session
+    await session.close()
+
+
 @pytest.fixture
-async def test_app():
-    from src.main import app
+def make_get_request(session):
+    async def inner(method: str, params: dict = None, json: dict = None):
+        params = params or {}
+        url = (
+            f"http://{test_settings.project_host}:{test_settings.project_port}"
+            + method
+        )
+        async with session.get(url, params=params, json=json) as response:
+            body = await response.json()
+            status = response.status
+            return body, status
 
-    await app.router.startup()
-    try:
-        yield app
-    finally:
-        await app.router.shutdown()
-
-
-@pytest.fixture
-async def test_client(test_app):
-    url = f"http://{test_settings.project_host}:{test_settings.project_port}/api/v1"
-    async with AsyncClient(app=test_app, base_url=url) as client:
-        yield client
+    return inner
 
 
 @pytest.fixture(scope="session")
@@ -48,20 +61,17 @@ async def es_client():
         yield pool
 
 
-# @pytest.fixture
-# async def flush_redis(redis_client):
-#     yield
-#     await redis_client.flushdb()
-#
-#
-# @pytest.fixture
-# async def flush_indexes(es_client):
-#     for index in INDEXES:
-#         await es_client.indices.delete(index=index.index_name)
+@pytest.fixture
+async def flush_redis(redis_client):
+    await redis_client.flushdb()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def es_init(es_client: AsyncElasticsearch):
+async def flush_indexes(es_client: AsyncElasticsearch):
+    for index in INDEXES:
+        await es_client.indices.delete(index=index.index_name)
+
+
+async def write_test_data(es_client: AsyncElasticsearch):
     for index in INDEXES:
         if not await es_client.indices.exists(index=index.index_name):
             json_data = json.loads(open(index.schema_file_path).read())
@@ -76,3 +86,12 @@ async def es_init(es_client: AsyncElasticsearch):
         if errors:
             print("Migration failed: %s", errors)
         print("Migration: processed %s errors %s", processed, errors)
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def es_init(es_client: AsyncElasticsearch):
+    await write_test_data(es_client)
+
+    yield
+
+    await flush_indexes(es_client)

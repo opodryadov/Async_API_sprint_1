@@ -6,10 +6,12 @@ import pytest
 pytestmark = pytest.mark.asyncio
 
 
-async def test_search(test_client):
+@pytest.mark.usefixtures("flush_redis")
+async def test_search(make_get_request):
     query_data = {"query": "The Star"}
 
-    response = await test_client.get("/films/search", params=query_data)
-
-    assert response.status_code == HTTPStatus.OK
-    assert len(response.json()) == 50
+    body, status = await make_get_request(
+        "/api/v1/films/search/", params=query_data
+    )
+    assert status == HTTPStatus.OK
+    assert len(body) == 50
