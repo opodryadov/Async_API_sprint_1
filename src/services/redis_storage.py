@@ -3,23 +3,24 @@ from functools import lru_cache
 from aioredis import Redis
 from fastapi import Depends
 
-from src.common.caches.redis_cache import RedisCacheBase
-from src.common.db.redis import get_redis
+from src.common.connectors.redis import get_redis
+from src.common.storages.caches.redis import RedisCacheBase
 from src.core import settings
+from src.models.index import IndexName
 
 
 class FilmRedisStorage(RedisCacheBase):
-    cache_prefix = "movies"
+    cache_prefix = IndexName.MOVIES
     default_ttl = settings.cache_expire
 
 
 class GenreRedisStorage(RedisCacheBase):
-    cache_prefix = "genres"
+    cache_prefix = IndexName.GENRES
     default_ttl = settings.cache_expire
 
 
 class PersonRedisStorage(RedisCacheBase):
-    cache_prefix = "persons"
+    cache_prefix = IndexName.PERSONS
     default_ttl = settings.cache_expire
 
 
