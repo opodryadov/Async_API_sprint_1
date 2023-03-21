@@ -5,12 +5,13 @@ import orjson
 from aioredis import Redis
 
 from src.common.chaches.base import BaseCache
+from src.common.chaches.consts import DEFAULT_TTL_IN_SECONDS
 from src.common.chaches.serializer import BaseSerializer
 
 
 class RedisCacheBase(BaseCache, BaseSerializer):
     cache_prefix = None
-    default_ttl = 600
+    default_ttl = DEFAULT_TTL_IN_SECONDS
 
     def __init__(self, redis: Redis):
         self.redis = redis
