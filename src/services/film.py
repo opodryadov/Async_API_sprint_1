@@ -1,25 +1,19 @@
-import logging
 from functools import lru_cache
 from typing import Optional
 
 from fastapi import Depends
 
+from src.common.chaches.redis_cache import RedisCacheBase
 from src.common.storages.es_storage import (
     EsStorage,
     get_elastic_storage_service,
 )
-from src.common.storages.redis_storage import (
-    RedisStorage,
-    get_redis_storage_service,
-)
+from src.common.storages.redis_storage import get_film_redis_storage
 from src.models import Film, FilmShort
 
 
-logger = logging.getLogger(__name__)
-
-
 class FilmService:
-    def __init__(self, redis_storage: RedisStorage, es_storage: EsStorage):
+    def __init__(self, redis_storage: RedisCacheBase, es_storage: EsStorage):
         self._redis_storage = redis_storage
         self._es_storage = es_storage
 
@@ -71,19 +65,17 @@ class FilmService:
                 "sort": params.get("sort"),
             },
         )
-        key = await self._redis_storage.get_key(query)
+        key = self._redis_storage.get_key(query)
         short_films = await self._redis_storage.get_from_cache(key=key)
         if short_films:
-            films_deserialize = await self._redis_storage.deserialize(
-                short_films
-            )
+            films_deserialize = self._redis_storage.deserialize(short_films)
             short_films = [
                 FilmShort.parse_raw(film) for film in films_deserialize
             ]
             return short_films
 
         short_films = await self._es_storage.get_list_short_films(query)
-        films_serialize = await self._redis_storage.serialize(
+        films_serialize = self._redis_storage.serialize(
             [film.json() for film in short_films]
         )
         await self._redis_storage.put_to_cache(key=key, value=films_serialize)
@@ -109,19 +101,17 @@ class FilmService:
                 "sort": params.get("sort"),
             },
         )
-        key = await self._redis_storage.get_key(query)
+        key = self._redis_storage.get_key(query)
         short_films = await self._redis_storage.get_from_cache(key=key)
         if short_films:
-            films_deserialize = await self._redis_storage.deserialize(
-                short_films
-            )
+            films_deserialize = self._redis_storage.deserialize(short_films)
             short_films = [
                 FilmShort.parse_raw(film) for film in films_deserialize
             ]
             return short_films
 
         short_films = await self._es_storage.get_list_short_films(query)
-        films_serialize = await self._redis_storage.serialize(
+        films_serialize = self._redis_storage.serialize(
             [film.json() for film in short_films]
         )
         await self._redis_storage.put_to_cache(key=key, value=films_serialize)
@@ -130,7 +120,7 @@ class FilmService:
 
 @lru_cache()
 def get_film_service(
-    redis: RedisStorage = Depends(get_redis_storage_service),
+    redis: RedisCacheBase = Depends(get_film_redis_storage),
     elastic: EsStorage = Depends(get_elastic_storage_service),
 ) -> FilmService:
     return FilmService(redis, elastic)

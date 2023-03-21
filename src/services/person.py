@@ -1,24 +1,18 @@
-import logging
 from functools import lru_cache
 
 from fastapi import Depends
 
+from src.common.chaches.redis_cache import RedisCacheBase
 from src.common.storages.es_storage import (
     EsStorage,
     get_elastic_storage_service,
 )
-from src.common.storages.redis_storage import (
-    RedisStorage,
-    get_redis_storage_service,
-)
+from src.common.storages.redis_storage import get_person_redis_storage
 from src.models import Film, Person, PersonRole
 
 
-logger = logging.getLogger(__name__)
-
-
 class PersonService:
-    def __init__(self, redis_storage: RedisStorage, es_storage: EsStorage):
+    def __init__(self, redis_storage: RedisCacheBase, es_storage: EsStorage):
         self._redis_storage = redis_storage
         self._es_storage = es_storage
 
@@ -80,15 +74,15 @@ class PersonService:
             },
         )
 
-        key = await self._redis_storage.get_key(query)
+        key = self._redis_storage.get_key(query)
         movies = await self._redis_storage.get_from_cache(key=key)
         if movies:
-            movies_deserialize = await self._redis_storage.deserialize(movies)
+            movies_deserialize = self._redis_storage.deserialize(movies)
             movies = [Film.parse_raw(movie) for movie in movies_deserialize]
             return movies
 
         movies = await self._es_storage.get_list_films(query)
-        movies_serialize = await self._redis_storage.serialize(
+        movies_serialize = self._redis_storage.serialize(
             [movie.json() for movie in movies]
         )
         await self._redis_storage.put_to_cache(key=key, value=movies_serialize)
@@ -159,19 +153,17 @@ class PersonService:
                 },
             )
 
-        key = await self._redis_storage.get_key(query)
+        key = self._redis_storage.get_key(query)
         persons = await self._redis_storage.get_from_cache(key=key)
         if persons:
-            persons_deserialize = await self._redis_storage.deserialize(
-                persons
-            )
+            persons_deserialize = self._redis_storage.deserialize(persons)
             persons = [
                 Person.parse_raw(person) for person in persons_deserialize
             ]
             return persons
 
         persons = await self._es_storage.get_list_persons(query)
-        persons_serialize = await self._redis_storage.serialize(
+        persons_serialize = self._redis_storage.serialize(
             [person.json() for person in persons]
         )
         await self._redis_storage.put_to_cache(
@@ -182,7 +174,7 @@ class PersonService:
 
 @lru_cache()
 def get_person_service(
-    redis: RedisStorage = Depends(get_redis_storage_service),
+    redis: RedisCacheBase = Depends(get_person_redis_storage),
     elastic: EsStorage = Depends(get_elastic_storage_service),
 ) -> PersonService:
     return PersonService(redis, elastic)
