@@ -8,13 +8,11 @@ load_dotenv()
 
 
 class TestSettings(BaseSettings):
-    project_host: str = Field(env="PROJECT_HOST", default="0.0.0.0")
+    project_host: str = Field(env="PROJECT_HOST", default="fastapi")
     project_port: int = Field(env="PROJECT_PORT", default="8000")
 
     elastic_host: str = Field(env="ELASTIC_HOST", default="es")
     elastic_port: int = Field(env="ELASTIC_PORT", default=9200)
-    es_index: str = Field(env="ELASTIC_INDEX", default="movies")
-    es_id_field: str = Field(env="ELASTIC_FIELD", default="id")
 
     redis_host: str = Field(env="REDIS_HOST", default="redis")
     redis_port: int = Field(env="REDIS_PORT", default=6379)

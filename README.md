@@ -20,11 +20,11 @@ make up_local_compose
 pip3 install poetry==1.2.2
 poetry install --no-root && poetry shell
 ```
-- создание .env_test файла
+- создание .env файла(перед сборкой контейнеров следует удалить этот файл, либо взять значения переменных из файла .env.example)
 ```bash
-cp .env_test_local .env_test
+cp tests/.env_test .env
 ```
-- запуск апи
+- запуск апи(для запуска заменить значение переменной PROJECT_PORT на любой другой порт кроме 8000 и 8080, например 8010)
 ```bash
 python .\manage.py api
 ```
@@ -34,5 +34,5 @@ pytest
 ```
 
 ###  Тест API
-[Swagger](http://127.0.0.1:8000/api/swagger)
+[Swagger](http://127.0.0.1:8080/api/swagger)
 
