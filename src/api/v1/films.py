@@ -31,7 +31,7 @@ async def list_films(
 
 
 @router.get(
-    "/search",
+    "/search/",
     response_model=list[FilmShort],
     summary="Поиск по фильмам",
     description="Поиск фильма по названию или описанию",
@@ -49,7 +49,7 @@ async def search_films(
 
 
 @router.get(
-    "/{film_id}",
+    "/{film_id}/",
     response_model=Film,
     summary="Информация по фильму",
     description="Полная информация по фильму",

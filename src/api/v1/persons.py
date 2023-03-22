@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get(
-    "/search",
+    "/search/",
     response_model=list[Person],
     summary="Поиск по персонам",
     description="Поиск по персонам.",
@@ -32,7 +32,7 @@ async def search_persons(
 
 
 @router.get(
-    "/{person_id}",
+    "/{person_id}/",
     response_model=Person,
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить информацию о персоне",
@@ -54,7 +54,7 @@ async def person_details(
 
 
 @router.get(
-    "/{person_id}/film",
+    "/{person_id}/film/",
     response_model=list[PersonFilm],
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить фильмы по персоне",

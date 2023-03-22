@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get(
-    "/{genre_id}",
+    "/{genre_id}/",
     response_model=Genre,
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить информацию о жанре",
