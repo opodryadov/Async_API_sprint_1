@@ -1,7 +1,7 @@
 from fastapi import Query
 
 
-async def get_sort(field: str) -> dict:
+def get_sort(field: str) -> dict:
     if not field or field not in (
         "title",
         "-title",
@@ -18,7 +18,7 @@ async def get_sort(field: str) -> dict:
     return {field: method}
 
 
-async def query_params(
+def query_params(
     query: str | None = Query(default=""),
     sort: str | None = Query(default=""),
     page_number: int | None = Query(default=0, ge=0),
@@ -26,7 +26,7 @@ async def query_params(
 ) -> dict:
     return {
         "query": query,
-        "sort": await get_sort(sort),
+        "sort": get_sort(sort),
         "page_number": page_number,
         "page_size": page_size,
     }
