@@ -1,9 +1,10 @@
 import abc
+from typing import Any
 
 
 class BaseSerializer:
     @abc.abstractmethod
-    def serialize(self, value) -> str:
+    def serialize(self, value: Any):
         """Сериализация"""
 
     @abc.abstractmethod

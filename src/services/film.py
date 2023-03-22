@@ -3,17 +3,17 @@ from typing import Optional
 
 from fastapi import Depends
 
-from src.common.caches.redis_cache import RedisCacheBase
-from src.common.storages.es_storage import (
-    EsStorage,
-    get_elastic_storage_service,
-)
-from src.common.storages.redis_storage import get_film_redis_storage
+from src.common.storages.caches.redis import RedisCacheBase
 from src.models import Film, FilmShort
+from src.models.index import IndexName
+from src.services.es_storage import EsStorageBase, get_film_elastic_storage
+from src.services.redis_storage import get_film_redis_storage
 
 
 class FilmService:
-    def __init__(self, redis_storage: RedisCacheBase, es_storage: EsStorage):
+    def __init__(
+        self, redis_storage: RedisCacheBase, es_storage: EsStorageBase
+    ):
         self._redis_storage = redis_storage
         self._es_storage = es_storage
 
@@ -23,7 +23,7 @@ class FilmService:
             film = Film.parse_raw(film)
             return film
 
-        film = await self._es_storage.get_film(film_id)
+        film = await self._es_storage.get_document_by_id(film_id)
         if not film:
             return None
         await self._redis_storage.put_to_cache(key=film.id, value=film.json())
@@ -50,7 +50,7 @@ class FilmService:
         self, params: dict, genre: str
     ) -> Optional[list[FilmShort]]:
         query = dict(
-            index="movies",
+            index=IndexName.MOVIES,
             body={
                 "from": params.get("page_number"),
                 "size": params.get("page_size"),
@@ -74,7 +74,7 @@ class FilmService:
             ]
             return short_films
 
-        short_films = await self._es_storage.get_list_short_films(query)
+        short_films = await self._es_storage.get_list_documents(query)
         films_serialize = self._redis_storage.serialize(
             [film.json() for film in short_films]
         )
@@ -83,7 +83,7 @@ class FilmService:
 
     async def _search_films(self, params: dict):
         query = dict(
-            index="movies",
+            index=IndexName.MOVIES,
             body={
                 "from": params.get("page_number"),
                 "size": params.get("page_size"),
@@ -110,7 +110,7 @@ class FilmService:
             ]
             return short_films
 
-        short_films = await self._es_storage.get_list_short_films(query)
+        short_films = await self._es_storage.get_list_documents(query)
         films_serialize = self._redis_storage.serialize(
             [film.json() for film in short_films]
         )
@@ -121,6 +121,6 @@ class FilmService:
 @lru_cache()
 def get_film_service(
     redis: RedisCacheBase = Depends(get_film_redis_storage),
-    elastic: EsStorage = Depends(get_elastic_storage_service),
+    elastic: EsStorageBase = Depends(get_film_elastic_storage),
 ) -> FilmService:
     return FilmService(redis, elastic)

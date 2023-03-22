@@ -2,17 +2,17 @@ from functools import lru_cache
 
 from fastapi import Depends
 
-from src.common.caches.redis_cache import RedisCacheBase
-from src.common.storages.es_storage import (
-    EsStorage,
-    get_elastic_storage_service,
-)
-from src.common.storages.redis_storage import get_person_redis_storage
+from src.common.storages.caches.redis import RedisCacheBase
 from src.models import Film, Person, PersonRole
+from src.models.index import IndexName
+from src.services.es_storage import EsStorageBase, get_person_elastic_storage
+from src.services.redis_storage import get_person_redis_storage
 
 
 class PersonService:
-    def __init__(self, redis_storage: RedisCacheBase, es_storage: EsStorage):
+    def __init__(
+        self, redis_storage: RedisCacheBase, es_storage: EsStorageBase
+    ):
         self._redis_storage = redis_storage
         self._es_storage = es_storage
 
@@ -22,7 +22,7 @@ class PersonService:
             person = Person.parse_raw(person)
             return person.dict()
 
-        person = await self._es_storage.get_person(person_id)
+        person = await self._es_storage.get_document_by_id(person_id)
         if not person:
             return None
         person = await self._enrich_person(person)
@@ -63,7 +63,7 @@ class PersonService:
         self, person_id: str, role: str
     ) -> list[Film]:
         query = dict(
-            index="movies",
+            index=IndexName.MOVIES,
             body={
                 "query": {
                     "nested": {
@@ -127,7 +127,7 @@ class PersonService:
     async def _get_list_persons(self, params: dict) -> list[Person]:
         if params.get("query"):
             query = dict(
-                index="persons",
+                index=IndexName.PERSONS,
                 body={
                     "query": {
                         "multi_match": {
@@ -145,7 +145,7 @@ class PersonService:
             )
         else:
             query = dict(
-                index="persons",
+                index=IndexName.PERSONS,
                 body={"query": {"match_all": {}}},
                 params={
                     "size": params.get("page_size"),
@@ -162,7 +162,7 @@ class PersonService:
             ]
             return persons
 
-        persons = await self._es_storage.get_list_persons(query)
+        persons = await self._es_storage.get_list_documents(query)
         persons_serialize = self._redis_storage.serialize(
             [person.json() for person in persons]
         )
@@ -175,6 +175,6 @@ class PersonService:
 @lru_cache()
 def get_person_service(
     redis: RedisCacheBase = Depends(get_person_redis_storage),
-    elastic: EsStorage = Depends(get_elastic_storage_service),
+    elastic: EsStorageBase = Depends(get_person_elastic_storage),
 ) -> PersonService:
     return PersonService(redis, elastic)

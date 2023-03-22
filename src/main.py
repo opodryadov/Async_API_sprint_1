@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from src.api.v1 import films, genres, persons
-from src.common.db import elastic, redis
+from src.common.connectors import elastic, redis
 from src.core import settings
 
 
