@@ -58,11 +58,11 @@ async def search_films(
 )
 async def film_details(
     film_id: str, film_service: FilmService = Depends(get_film_service)
-) -> Film:
-    film = await film_service.get_film_by_id(film_id)
+) -> dict:
+    film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="film not found"
         )
 
-    return Film(**film.dict())
+    return film

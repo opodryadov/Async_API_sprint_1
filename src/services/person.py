@@ -4,32 +4,20 @@ from fastapi import Depends
 
 from src.common.storages.caches.redis import RedisCacheBase
 from src.models import Film, Person, PersonRole
-from src.models.index import IndexName
+from src.models.search import IndexName
+from src.services.base import Service
 from src.services.es_storage import EsStorageBase, get_person_elastic_storage
 from src.services.redis_storage import get_person_redis_storage
 
 
-class PersonService:
-    def __init__(
-        self, redis_storage: RedisCacheBase, es_storage: EsStorageBase
-    ):
-        self._redis_storage = redis_storage
-        self._es_storage = es_storage
+class PersonService(Service):
+    index_name = IndexName.PERSONS.value
+    detail_model = Person
+    model = Person
 
     async def get_person_by_id(self, person_id) -> dict | None:
-        person = await self._redis_storage.get_from_cache(key=person_id)
-        if person:
-            person = Person.parse_raw(person)
-            return person.dict()
-
-        person = await self._es_storage.get_document_by_id(person_id)
-        if not person:
-            return None
+        person = await self.get_by_id(person_id)
         person = await self._enrich_person(person)
-        await self._redis_storage.put_to_cache(
-            key=person.id, value=person.json()
-        )
-
         return person.dict()
 
     async def get_films_by_person_id(
@@ -48,7 +36,7 @@ class PersonService:
         return films
 
     async def person_search(self, params: dict) -> list[dict] | None:
-        persons = await self._get_list_persons(params)
+        persons = await self.get_list(params)
         if not persons:
             return None
         persons = [
@@ -62,26 +50,14 @@ class PersonService:
     async def _get_films_by_role(
         self, person_id: str, role: str
     ) -> list[Film]:
-        query = dict(
-            index=IndexName.MOVIES,
-            body={
-                "query": {
-                    "nested": {
-                        "path": role,
-                        "query": {"match": {f"{role}.id": f"{person_id}"}},
-                    }
-                }
-            },
-        )
-
-        key = self._redis_storage.get_key(query)
+        key = self._redis_storage.get_key(dict(person_id=person_id, role=role))
         movies = await self._redis_storage.get_from_cache(key=key)
         if movies:
             movies_deserialize = self._redis_storage.deserialize(movies)
             movies = [Film.parse_raw(movie) for movie in movies_deserialize]
             return movies
 
-        movies = await self._es_storage.get_list_films(query)
+        movies = await self._es_storage.get_films_by_role(person_id, role)
         movies_serialize = self._redis_storage.serialize(
             [movie.json() for movie in movies]
         )
@@ -123,53 +99,6 @@ class PersonService:
             dict(uuid=key, roles=value) for key, value in films.items()
         ]
         return person
-
-    async def _get_list_persons(self, params: dict) -> list[Person]:
-        if params.get("query"):
-            query = dict(
-                index=IndexName.PERSONS,
-                body={
-                    "query": {
-                        "multi_match": {
-                            "query": params.get("query"),
-                            "fields": ["full_name"],
-                            "type": "phrase_prefix",
-                            "tie_breaker": 0.3,
-                        }
-                    }
-                },
-                params={
-                    "size": params.get("page_size"),
-                    "from": params.get("page_number"),
-                },
-            )
-        else:
-            query = dict(
-                index=IndexName.PERSONS,
-                body={"query": {"match_all": {}}},
-                params={
-                    "size": params.get("page_size"),
-                    "from": params.get("page_number"),
-                },
-            )
-
-        key = self._redis_storage.get_key(query)
-        persons = await self._redis_storage.get_from_cache(key=key)
-        if persons:
-            persons_deserialize = self._redis_storage.deserialize(persons)
-            persons = [
-                Person.parse_raw(person) for person in persons_deserialize
-            ]
-            return persons
-
-        persons = await self._es_storage.get_list_documents(query)
-        persons_serialize = self._redis_storage.serialize(
-            [person.json() for person in persons]
-        )
-        await self._redis_storage.put_to_cache(
-            key=key, value=persons_serialize
-        )
-        return persons
 
 
 @lru_cache()

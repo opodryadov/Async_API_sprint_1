@@ -6,27 +6,38 @@ from fastapi import Depends
 from src.common.connectors.elastic import get_elastic
 from src.common.storages.elastic import EsStorageBase
 from src.models import Film, FilmShort, Genre, Person
-from src.models.index import IndexName
+from src.models.search import IndexName
 
 
 class FilmEsStorage(EsStorageBase):
-    index_name = IndexName.MOVIES
+    index_name = IndexName.MOVIES.value
     model = FilmShort
     detail_model = Film
 
 
 class GenreEsStorage(EsStorageBase):
-    index_name = IndexName.GENRES
+    index_name = IndexName.GENRES.value
     model = Genre
     detail_model = Genre
 
 
 class PersonEsStorage(EsStorageBase):
-    index_name = IndexName.PERSONS
+    index_name = IndexName.PERSONS.value
     model = Person
     detail_model = Person
 
-    async def get_list_films(self, query: dict) -> list[Film]:
+    async def get_films_by_role(self, person_id: str, role: str) -> list[Film]:
+        query = dict(
+            index=IndexName.MOVIES,
+            body={
+                "query": {
+                    "nested": {
+                        "path": role,
+                        "query": {"match": {f"{role}.id": f"{person_id}"}},
+                    }
+                }
+            },
+        )
         docs = await self.search_by_query(**query)
         movies = [Film(**doc["_source"]) for doc in docs]
         return movies

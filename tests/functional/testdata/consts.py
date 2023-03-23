@@ -1,7 +1,7 @@
 import os
 from pathlib import Path, PurePath
 
-from src.models.index import IndexName
+from src.models.search import IndexName
 from tests.functional.core.settings import ESIndexSettings
 
 
