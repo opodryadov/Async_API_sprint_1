@@ -25,7 +25,7 @@ async def genre_details(
     genre_id: str,
     genre_service: GenreService = Depends(get_genre_service),
 ) -> dict:
-    genre = await genre_service.get_genre_by_id(genre_id)
+    genre = await genre_service.get_by_id(genre_id)
     if not genre:
         logger.warning("Genre was not found by id %s", genre_id)
         raise HTTPException(
@@ -48,7 +48,7 @@ async def list_genres(
     page_size: int | None = Query(default=50, ge=0, le=200),
 ) -> list[dict]:
     params = dict(page_number=page_number, page_size=page_size)
-    genres = await genre_service.get_list_genres(params)
+    genres = await genre_service.get_list(params)
     if not genres:
         logger.warning("Was not a single genre")
         return []
