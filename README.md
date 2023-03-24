@@ -30,7 +30,7 @@ cp tests/.env_test_local .env
 ```
 - запуск апи(для запуска заменить значение переменной PROJECT_PORT на любой другой порт кроме 8000 и 8080, например 8010)
 ```bash
-python .\manage.py api
+python ./manage.py api
 ```
 - запуск тестов
 ```bash
