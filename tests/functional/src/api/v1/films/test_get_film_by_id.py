@@ -8,6 +8,7 @@ pytestmark = pytest.mark.asyncio
 
 film_id = "00af52ec-9345-4d66-adbe-50eb917f463a"
 film_title = "Star Slammer"
+unknown_film_id = "96dad231-e626-420c-b076-c71ec012ef63"
 
 
 @pytest.mark.usefixtures("flush_redis")
@@ -35,3 +36,10 @@ async def test_get_film_by_id(make_get_request, redis_client, es_client):
     data = json.loads(data)
     assert data.get("id") == film_id
     assert data.get("title") == film_title
+
+
+async def test_get_404(make_get_request):
+    body, status = await make_get_request(
+        f"/api/v1/films/{unknown_film_id}"
+    )
+    assert status == HTTPStatus.NOT_FOUND
