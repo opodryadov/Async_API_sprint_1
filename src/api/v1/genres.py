@@ -14,12 +14,33 @@ logger = logging.getLogger(__name__)
 
 
 @router.get(
-    "/{genre_id}/",
+    "",
+    response_model=list[Genre],
+    summary="Список жанров",
+    description="Список жанров",
+    response_description="Весь список жанров",
+)
+async def list_genres(
+    genre_service: GenreService = Depends(get_genre_service),
+    page_number: int | None = Query(default=1, ge=1),
+    page_size: int | None = Query(default=50, ge=1, le=200),
+) -> list[dict]:
+    params = dict(page_number=page_number-1, page_size=page_size)
+    genres = await genre_service.get_list(params)
+    if not genres:
+        logger.warning("Was not a single genre")
+        return []
+
+    return genres
+
+
+@router.get(
+    "/{genre_id}",
     response_model=Genre,
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить информацию о жанре",
-    description="Получить информацию о жанре.",
-    response_description="Подробная информация о жанре.",
+    description="Получить информацию о жанре",
+    response_description="Подробная информация о жанре",
 )
 async def genre_details(
     genre_id: str,
@@ -33,24 +54,3 @@ async def genre_details(
         )
 
     return genre
-
-
-@router.get(
-    "/",
-    response_model=list[Genre],
-    summary="Список жанров",
-    description="Список жанров.",
-    response_description="Весь список жанров.",
-)
-async def list_genres(
-    genre_service: GenreService = Depends(get_genre_service),
-    page_number: int | None = Query(default=0, ge=0),
-    page_size: int | None = Query(default=50, ge=0, le=200),
-) -> list[dict]:
-    params = dict(page_number=page_number, page_size=page_size)
-    genres = await genre_service.get_list(params)
-    if not genres:
-        logger.warning("Was not a single genre")
-        return []
-
-    return genres

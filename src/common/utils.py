@@ -21,12 +21,12 @@ def get_sort(field: str) -> dict:
 def query_params(
     query: str | None = Query(default=""),
     sort: str | None = Query(default=""),
-    page_number: int | None = Query(default=0, ge=0),
-    page_size: int | None = Query(default=50, ge=0, le=200),
+    page_number: int | None = Query(default=1, ge=1),
+    page_size: int | None = Query(default=50, ge=1, le=200),
 ) -> dict:
     return {
         "query": query,
         "sort": get_sort(sort),
-        "page_number": page_number,
+        "page_number": page_number - 1,
         "page_size": page_size,
     }

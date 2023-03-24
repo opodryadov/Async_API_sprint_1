@@ -31,11 +31,11 @@ async def list_films(
 
 
 @router.get(
-    "/search/",
+    "/search",
     response_model=list[FilmShort],
     summary="Поиск по фильмам",
-    description="Поиск фильма по названию или описанию",
-    response_description="Список фильмов с UUID, названием и рейтингом",
+    description="Поиск по фильмам",
+    response_description="Результат поиска",
 )
 async def search_films(
     params: dict = Depends(query_params),
@@ -49,12 +49,12 @@ async def search_films(
 
 
 @router.get(
-    "/{film_id}/",
+    "/{film_id}",
     response_model=Film,
-    summary="Информация по фильму",
-    description="Полная информация по фильму",
+    summary="Получить информацию по фильму",
+    description="Получить информацию по фильму",
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
-    response_description="UUID, название, рейтинг, описание, жанр, актёры, сценаристы, режиссёры",
+    response_description="Подробная информация о фильме",
 )
 async def film_details(
     film_id: str, film_service: FilmService = Depends(get_film_service)

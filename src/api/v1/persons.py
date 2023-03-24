@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 @router.get(
-    "/search/",
+    "/search",
     response_model=list[Person],
     summary="Поиск по персонам",
-    description="Поиск по персонам.",
-    response_description="Результат поиска.",
+    description="Поиск по персонам",
+    response_description="Результат поиска",
 )
 async def search_persons(
     person_service: PersonService = Depends(get_person_service),
@@ -32,12 +32,12 @@ async def search_persons(
 
 
 @router.get(
-    "/{person_id}/",
+    "/{person_id}",
     response_model=Person,
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить информацию о персоне",
-    description="Получить информацию о персоне.",
-    response_description="Подробная информация о персоне.",
+    description="Получить информацию о персоне",
+    response_description="Подробная информация о персоне",
 )
 async def person_details(
     person_id: str,
@@ -54,12 +54,12 @@ async def person_details(
 
 
 @router.get(
-    "/{person_id}/film/",
+    "/{person_id}/film",
     response_model=list[PersonFilm],
     responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
     summary="Получить фильмы по персоне",
-    description="Получить фильмы по персоне.",
-    response_description="Фильмы по персоне.",
+    description="Получить фильмы по персоне",
+    response_description="Фильмы по персоне",
 )
 async def list_film_by_person(
     person_id: str,
