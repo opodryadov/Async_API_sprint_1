@@ -14,3 +14,10 @@ async def test_get_genre_by_id(make_get_request):
     assert status == HTTPStatus.OK
     assert body.get("uuid") == genre_id
     assert body.get("name") == genre_name
+
+
+async def test_get_404(make_get_request):
+    body, status = await make_get_request(
+        f"/api/v1/genres/96dad231-e626-420c-b076-c71ec012ef63"
+    )
+    assert status == HTTPStatus.NOT_FOUND
