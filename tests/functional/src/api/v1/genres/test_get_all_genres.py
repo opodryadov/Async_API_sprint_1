@@ -23,3 +23,10 @@ async def test_get_all_genres(make_get_request):
 
     for genre in genre_list:
         assert genre in genre_list_from_body
+
+
+async def test_get_422(make_get_request):
+    body, status = await make_get_request(
+        f"/api/v1/genres", params={"page_number": -1}
+    )
+    assert status == HTTPStatus.UNPROCESSABLE_ENTITY
