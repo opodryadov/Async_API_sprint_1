@@ -74,7 +74,7 @@ class Service(BaseService):
         search_query = ModelSearchQuery()
 
         search_query.body = {"query": {"match_all": {}}}
-        if self.index_name == IndexName.PERSONS and query:
+        if self.index_name == IndexName.PERSONS.value and query:
             search_query.body = {"query": {"match": {"full_name": query}}}
         if (
             self.index_name == IndexName.MOVIES.value
