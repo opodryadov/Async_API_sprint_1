@@ -23,11 +23,11 @@ async def test_get_film_by_id(make_get_request, redis_client):
     assert len(body.get("writers")) == 3
     assert len(body.get("directors")) == 1
 
-    genres = [genre["name"] for genre in body.get('genre')]
+    genres = [genre["name"] for genre in body.get("genre")]
     assert "Action" in genres
 
-    writers = [genre["full_name"] for genre in body.get('writers')]
-    directors = [genre["full_name"] for genre in body.get('directors')]
+    writers = [genre["full_name"] for genre in body.get("writers")]
+    directors = [genre["full_name"] for genre in body.get("directors")]
     assert "Fred Olen Ray" in writers and directors
 
     data = await redis_client.get(name=film_id)
@@ -39,7 +39,5 @@ async def test_get_film_by_id(make_get_request, redis_client):
 
 
 async def test_get_404(make_get_request):
-    body, status = await make_get_request(
-        f"/api/v1/films/{unknown_film_id}"
-    )
+    body, status = await make_get_request(f"/api/v1/films/{unknown_film_id}")
     assert status == HTTPStatus.NOT_FOUND
