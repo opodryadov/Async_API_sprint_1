@@ -27,6 +27,6 @@ def query_params(
     return {
         "query": query,
         "sort": get_sort(sort),
-        "page_number": page_number - 1,
+        "page_number": page_number,
         "page_size": page_size,
     }

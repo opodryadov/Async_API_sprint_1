@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.common.utils import query_params
 from src.models import Film, FilmShort
-from src.models.response import BadRequest, NotFound
+from src.models.response import NotFound
 from src.services.film import FilmService, get_film_service
 
 
@@ -53,7 +53,7 @@ async def search_films(
     response_model=Film,
     summary="Получить информацию по фильму",
     description="Получить информацию по фильму",
-    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    responses={404: {"model": NotFound}},
     response_description="Подробная информация о фильме",
 )
 async def film_details(

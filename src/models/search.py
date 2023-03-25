@@ -11,6 +11,6 @@ class IndexName(str, Enum):
 
 
 class ModelSearchQuery(ORDJSONModelMixin):
-    index: Optional[str]
+    index: Optional[IndexName]
     body: Optional[dict]
     params: Optional[dict]

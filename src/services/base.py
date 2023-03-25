@@ -69,12 +69,12 @@ class Service(BaseService):
         search_type = params.get("search_type")
         params = {
             "size": params.get("page_size"),
-            "from": params.get("page_number"),
+            "from": params.get("page_number") - 1,
         }
         search_query = ModelSearchQuery()
 
         search_query.body = {"query": {"match_all": {}}}
-        if self.index_name == IndexName.PERSONS and query:
+        if self.index_name == IndexName.PERSONS.value and query:
             search_query.body = {"query": {"match": {"full_name": query}}}
         if (
             self.index_name == IndexName.MOVIES.value
@@ -108,7 +108,7 @@ class Service(BaseService):
                 }
             }
         if sort:
-            params.update({"sort": sort})
+            search_query.body.update({"sort": sort})
 
         search_query.index = self.index_name
         search_query.params = params

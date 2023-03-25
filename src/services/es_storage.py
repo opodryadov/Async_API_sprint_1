@@ -28,7 +28,7 @@ class PersonEsStorage(EsStorageBase):
 
     async def get_films_by_role(self, person_id: str, role: str) -> list[Film]:
         query = dict(
-            index=IndexName.MOVIES,
+            index=IndexName.MOVIES.value,
             body={
                 "query": {
                     "nested": {
