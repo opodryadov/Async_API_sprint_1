@@ -25,7 +25,7 @@ async def list_genres(
     page_number: int | None = Query(default=1, ge=1),
     page_size: int | None = Query(default=50, ge=1, le=200),
 ) -> list[dict]:
-    params = dict(page_number=page_number - 1, page_size=page_size)
+    params = dict(page_number=page_number, page_size=page_size)
     genres = await genre_service.get_list(params)
     if not genres:
         logger.warning("Was not a single genre")

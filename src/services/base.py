@@ -69,7 +69,7 @@ class Service(BaseService):
         search_type = params.get("search_type")
         params = {
             "size": params.get("page_size"),
-            "from": params.get("page_number"),
+            "from": params.get("page_number") - 1,
         }
         search_query = ModelSearchQuery()
 
