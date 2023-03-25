@@ -1,11 +1,10 @@
 import logging
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
-from src.common.utils import query_params
 from src.models import Person, PersonFilm
-from src.models.response import BadRequest, NotFound
+from src.models.response import NotFound
 from src.services.person import PersonService, get_person_service
 
 
@@ -22,9 +21,12 @@ logger = logging.getLogger(__name__)
     response_description="Результат поиска",
 )
 async def search_persons(
+    query: str | None = Query(default=""),
+    page_number: int | None = Query(default=1, ge=1),
+    page_size: int | None = Query(default=50, ge=1, le=200),
     person_service: PersonService = Depends(get_person_service),
-    params: dict = Depends(query_params),
 ) -> list[dict]:
+    params = dict(query=query, page_number=page_number, page_size=page_size)
     persons = await person_service.person_search(params)
     if not persons:
         return []
@@ -34,7 +36,7 @@ async def search_persons(
 @router.get(
     "/{person_id}",
     response_model=Person,
-    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    responses={404: {"model": NotFound}},
     summary="Получить информацию о персоне",
     description="Получить информацию о персоне",
     response_description="Подробная информация о персоне",
@@ -56,7 +58,7 @@ async def person_details(
 @router.get(
     "/{person_id}/film",
     response_model=list[PersonFilm],
-    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    responses={404: {"model": NotFound}},
     summary="Получить фильмы по персоне",
     description="Получить фильмы по персоне",
     response_description="Фильмы по персоне",

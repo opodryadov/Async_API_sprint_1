@@ -4,7 +4,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.models import Genre
-from src.models.response import BadRequest, NotFound
+from src.models.response import NotFound
 from src.services.genre import GenreService, get_genre_service
 
 
@@ -25,7 +25,7 @@ async def list_genres(
     page_number: int | None = Query(default=1, ge=1),
     page_size: int | None = Query(default=50, ge=1, le=200),
 ) -> list[dict]:
-    params = dict(page_number=page_number-1, page_size=page_size)
+    params = dict(page_number=page_number - 1, page_size=page_size)
     genres = await genre_service.get_list(params)
     if not genres:
         logger.warning("Was not a single genre")
@@ -37,7 +37,7 @@ async def list_genres(
 @router.get(
     "/{genre_id}",
     response_model=Genre,
-    responses={404: {"model": NotFound}, 400: {"model": BadRequest}},
+    responses={404: {"model": NotFound}},
     summary="Получить информацию о жанре",
     description="Получить информацию о жанре",
     response_description="Подробная информация о жанре",

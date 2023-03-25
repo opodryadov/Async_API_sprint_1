@@ -108,7 +108,7 @@ class Service(BaseService):
                 }
             }
         if sort:
-            params.update({"sort": sort})
+            search_query.body.update({"sort": sort})
 
         search_query.index = self.index_name
         search_query.params = params
