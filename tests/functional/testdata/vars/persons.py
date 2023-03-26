@@ -9,7 +9,6 @@ PERSON_WRITER = {
     ],
 }
 
-
 CACHE_PERSON_WRITER = {
     "id": "dbac6947-e620-4f92-b6a1-dae9a3b07422",
     "full_name": "Damon Lindelof",
@@ -44,7 +43,7 @@ PERSON_WRITER_DIRECTOR = {
     ],
 }
 
-CACHE_PERSON_WRITER_DICRECTOR = {
+CACHE_PERSON_WRITER_DIRECTOR = {
     "films": None,
     "full_name": "Rian Johnson",
     "id": "b66db341-5dcd-4aaf-b536-050b59979357",
@@ -112,11 +111,11 @@ PERSON_WRITER_DIRECTOR_FILMS = [
     }
 ]
 
-CACHE_PERSON_WRITER_DICRECTOR_FILMS_1 = [
+CACHE_PERSON_WRITER_DIRECTOR_FILMS_1 = [
     '{"id":"12a8279d-d851-4eb9-9d64-d690455277cc","title":"Star Wars: Episode VIII - The Last Jedi","imdb_rating":7.0,"description":"Rey develops her newly discovered abilities with the guidance of Luke Skywalker, who is unsettled by the strength of her powers. Meanwhile, the Resistance prepares for battle with the First Order.","genre":[{"id":"120a21cf-9097-479e-904a-13dd7198c1dd","name":"Adventure"},{"id":"3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff","name":"Action"},{"id":"6c162475-c7ed-4461-9184-001ef3d9f26e","name":"Sci-Fi"},{"id":"b92ef010-5e4c-4fd0-99d6-41b6456272cd","name":"Fantasy"}],"actors":[{"id":"26e83050-29ef-4163-a99d-b546cac208f8","full_name":"Mark Hamill"},{"id":"2d6f6284-13ce-4d25-9453-c4335432c116","full_name":"Adam Driver"},{"id":"7026c3f4-d7b8-414a-99d5-06de1788a0ee","full_name":"Daisy Ridley"},{"id":"b5d2b63a-ed1f-4e46-8320-cf52a32be358","full_name":"Carrie Fisher"}],"writers":[{"id":"a5a8f573-3cee-4ccc-8a2b-91cb9f55250a","full_name":"George Lucas"},{"id":"b66db341-5dcd-4aaf-b536-050b59979357","full_name":"Rian Johnson"}],"directors":[{"id":"b66db341-5dcd-4aaf-b536-050b59979357","full_name":"Rian Johnson"}]}'
 ]
 
-CACHE_PERSON_WRITER_DICRECTOR_FILMS_2 = [
+CACHE_PERSON_WRITER_DIRECTOR_FILMS_2 = [
     '{"id":"12a8279d-d851-4eb9-9d64-d690455277cc","title":"Star Wars: Episode VIII - The Last Jedi","imdb_rating":7.0,"description":"Rey develops her newly discovered abilities with the guidance of Luke Skywalker, who is unsettled by the strength of her powers. Meanwhile, the Resistance prepares for battle with the First Order.","genre":[{"id":"120a21cf-9097-479e-904a-13dd7198c1dd","name":"Adventure"},{"id":"3d8d9bf5-0d90-4353-88ba-4ccc5d2c07ff","name":"Action"},{"id":"6c162475-c7ed-4461-9184-001ef3d9f26e","name":"Sci-Fi"},{"id":"b92ef010-5e4c-4fd0-99d6-41b6456272cd","name":"Fantasy"}],"actors":[{"id":"26e83050-29ef-4163-a99d-b546cac208f8","full_name":"Mark Hamill"},{"id":"2d6f6284-13ce-4d25-9453-c4335432c116","full_name":"Adam Driver"},{"id":"7026c3f4-d7b8-414a-99d5-06de1788a0ee","full_name":"Daisy Ridley"},{"id":"b5d2b63a-ed1f-4e46-8320-cf52a32be358","full_name":"Carrie Fisher"}],"writers":[{"id":"a5a8f573-3cee-4ccc-8a2b-91cb9f55250a","full_name":"George Lucas"},{"id":"b66db341-5dcd-4aaf-b536-050b59979357","full_name":"Rian Johnson"}],"directors":[{"id":"b66db341-5dcd-4aaf-b536-050b59979357","full_name":"Rian Johnson"}]}'
 ]
 

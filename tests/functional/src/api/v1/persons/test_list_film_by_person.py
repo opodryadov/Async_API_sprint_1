@@ -5,8 +5,8 @@ import pytest
 
 from tests.functional.testdata.vars.persons import (
     CACHE_PERSON_ACTOR_FILMS,
-    CACHE_PERSON_WRITER_DICRECTOR_FILMS_1,
-    CACHE_PERSON_WRITER_DICRECTOR_FILMS_2,
+    CACHE_PERSON_WRITER_DIRECTOR_FILMS_1,
+    CACHE_PERSON_WRITER_DIRECTOR_FILMS_2,
     CACHE_PERSON_WRITER_FILMS,
     PERSON_ACTOR_FILMS,
     PERSON_NOT_IN_FILMS,
@@ -48,8 +48,8 @@ pytestmark = pytest.mark.asyncio
             "32e6d535767afb7b767ed0884df2e4a0",
             "2cd9e3be9cbce0f0614400da7a0d6658",
             "75fac9e3da31fec7258817f4634109be",
-            CACHE_PERSON_WRITER_DICRECTOR_FILMS_1,
-            CACHE_PERSON_WRITER_DICRECTOR_FILMS_2,
+            CACHE_PERSON_WRITER_DIRECTOR_FILMS_1,
+            CACHE_PERSON_WRITER_DIRECTOR_FILMS_2,
             [],
         ),
         (

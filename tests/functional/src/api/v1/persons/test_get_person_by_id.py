@@ -7,7 +7,7 @@ from tests.functional.testdata.vars.persons import (
     CACHE_PERSON_ACTOR,
     CACHE_PERSON_NOT_ROLE,
     CACHE_PERSON_WRITER,
-    CACHE_PERSON_WRITER_DICRECTOR,
+    CACHE_PERSON_WRITER_DIRECTOR,
     PERSON_ACTOR,
     PERSON_NOT_ROLE,
     PERSON_WRITER,
@@ -35,7 +35,7 @@ pytestmark = pytest.mark.asyncio
         (
             "b66db341-5dcd-4aaf-b536-050b59979357",
             PERSON_WRITER_DIRECTOR,
-            CACHE_PERSON_WRITER_DICRECTOR,
+            CACHE_PERSON_WRITER_DIRECTOR,
         ),
         (
             "a5a8f573-3cee-4c3v-8a2b-91cb9f55250a",
