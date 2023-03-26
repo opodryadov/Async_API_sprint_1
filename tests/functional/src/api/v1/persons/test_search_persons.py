@@ -46,5 +46,5 @@ async def test_search_persons(
 
     record_in_cache = await redis_client.get(redis_key)
     if record_in_cache:
-        record_deserealize = orjson.loads(record_in_cache)
-        assert record_deserealize == cache_response
+        record_deserialize = orjson.loads(record_in_cache)
+        assert record_deserialize == cache_response

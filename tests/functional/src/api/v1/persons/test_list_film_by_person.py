@@ -90,17 +90,17 @@ async def test_list_film_by_person(
     assert status == HTTPStatus.OK
     assert body == api_response
 
-    films_director_in_chache = await redis_client.get(key_directors)
-    if films_director_in_chache:
-        person_deserealize = orjson.loads(films_director_in_chache)
-        assert person_deserealize == cache_directors
+    films_director_in_cache = await redis_client.get(key_directors)
+    if films_director_in_cache:
+        person_deserialize = orjson.loads(films_director_in_cache)
+        assert person_deserialize == cache_directors
 
-    films_writer_in_chache = await redis_client.get(key_writers)
-    if films_writer_in_chache:
-        person_deserealize = orjson.loads(films_writer_in_chache)
-        assert person_deserealize == cache_writers
+    films_writer_in_cache = await redis_client.get(key_writers)
+    if films_writer_in_cache:
+        person_deserialize = orjson.loads(films_writer_in_cache)
+        assert person_deserialize == cache_writers
 
-    films_actor_in_chache = await redis_client.get(key_actors)
-    if films_actor_in_chache:
-        person_deserealize = orjson.loads(films_actor_in_chache)
-        assert person_deserealize == cache_actors
+    films_actor_in_cache = await redis_client.get(key_actors)
+    if films_actor_in_cache:
+        person_deserialize = orjson.loads(films_actor_in_cache)
+        assert person_deserialize == cache_actors
