@@ -63,5 +63,5 @@ async def test_get_person_not_found(make_get_request, redis_client):
     assert status == HTTPStatus.NOT_FOUND
     assert body == {"detail": "Person not found"}
 
-    person_in_chache = await redis_client.get(person_id)
-    assert person_in_chache is None
+    person_in_cache = await redis_client.get(person_id)
+    assert person_in_cache is None
