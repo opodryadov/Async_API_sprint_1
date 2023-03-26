@@ -5,6 +5,7 @@ import pytest
 from tests.functional.testdata.vars.persons import (
     PAGINATIONS_VALIDATION_PAGE_NUMBER,
     PAGINATIONS_VALIDATION_PAGE_SIZE,
+    PAGINATIONS_VALIDATION_PAGE_SIZE_NOT_GE,
 )
 
 
@@ -59,6 +60,16 @@ async def test_search_persons_paginations(
             1,
             250,
             PAGINATIONS_VALIDATION_PAGE_SIZE,
+        ),
+        (
+            1,
+            0,
+            PAGINATIONS_VALIDATION_PAGE_SIZE_NOT_GE,
+        ),
+        (
+            1,
+            -1,
+            PAGINATIONS_VALIDATION_PAGE_SIZE_NOT_GE,
         ),
     ),
 )
