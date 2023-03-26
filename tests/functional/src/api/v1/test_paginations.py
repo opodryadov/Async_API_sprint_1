@@ -2,7 +2,10 @@ from http import HTTPStatus
 
 import pytest
 
-from tests.functional.testdata.vars.persons import PAGINATIONS_VALIDATION
+from tests.functional.testdata.vars.persons import (
+    PAGINATIONS_VALIDATION_PAGE_NUMBER,
+    PAGINATIONS_VALIDATION_PAGE_SIZE,
+)
 
 
 pytestmark = pytest.mark.asyncio
@@ -45,12 +48,17 @@ async def test_search_persons_paginations(
         (
             -1,
             50,
-            PAGINATIONS_VALIDATION,
+            PAGINATIONS_VALIDATION_PAGE_NUMBER,
         ),
         (
             0,
             1,
-            PAGINATIONS_VALIDATION,
+            PAGINATIONS_VALIDATION_PAGE_NUMBER,
+        ),
+        (
+            1,
+            250,
+            PAGINATIONS_VALIDATION_PAGE_SIZE,
         ),
     ),
 )
