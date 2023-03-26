@@ -95,7 +95,7 @@ class PersonService(Service):
 
         return movies
 
-    async def _enrich_person(self, person: Person) -> Person | None:
+    async def _enrich_person(self, person: Person) -> Person:
         films = await self._get_films_roles(person.id)
         person.films = [
             dict(uuid=key, roles=value) for key, value in films.items()
