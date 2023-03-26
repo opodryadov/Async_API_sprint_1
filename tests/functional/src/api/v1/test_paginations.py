@@ -15,7 +15,7 @@ pytestmark = pytest.mark.asyncio
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("/api/v1/persons/search",),
+    ("persons/search",),
 )
 @pytest.mark.parametrize(
     "page_number, page_size, records_per_page",
@@ -32,7 +32,7 @@ async def test_search_persons_paginations(
     records_per_page,
 ):
     body, status = await make_get_request(
-        f"{endpoint}?page_number={page_number}&page_size={page_size}"
+        f"/api/v1/{endpoint}?page_number={page_number}&page_size={page_size}"
     )
     assert status == HTTPStatus.OK
     assert (len(body)) == records_per_page
@@ -41,7 +41,7 @@ async def test_search_persons_paginations(
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("/api/v1/persons/search",),
+    ("persons/search",),
 )
 @pytest.mark.parametrize(
     "page_number, page_size, api_response",
@@ -81,7 +81,7 @@ async def test_search_persons_paginations_validation(
     api_response,
 ):
     body, status = await make_get_request(
-        f"{endpoint}?page_number={page_number}&page_size={page_size}"
+        f"/api/v1/{endpoint}?page_number={page_number}&page_size={page_size}"
     )
     assert status == HTTPStatus.UNPROCESSABLE_ENTITY
     assert body == api_response
