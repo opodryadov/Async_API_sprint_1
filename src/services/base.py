@@ -47,6 +47,7 @@ class Service(BaseService):
         search_query = self.get_search_query(params)
         key = self._redis_storage.get_key(search_query)
         items = await self._redis_storage.get_from_cache(key=key)
+        print("--REDIS", params, key, items)
         if items:
             items_deserialize = self._redis_storage.deserialize(items)
             items = [self.model.parse_raw(item) for item in items_deserialize]

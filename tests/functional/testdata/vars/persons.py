@@ -120,3 +120,51 @@ CACHE_PERSON_WRITER_DIRECTOR_FILMS_2 = [
 ]
 
 PERSON_NOT_IN_FILMS = []
+
+SEARCH_FILMS_RESPONSE = [
+    {
+        "uuid": "9f38323f-5912-40d2-a90c-b56899746f2a",
+        "full_name": "Chris Pine",
+        "films": [
+            {
+                "uuid": "020adfa7-7251-4fb9-b6db-07b60664cb67",
+                "roles": ["actor"],
+            },
+            {
+                "uuid": "4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f",
+                "roles": ["actor"],
+            },
+            {
+                "uuid": "572170d4-9a3d-47aa-8ffa-24c6b4ea367c",
+                "roles": ["actor"],
+            },
+            {
+                "uuid": "5ebdd8a8-f324-4546-9126-5a24b63089ad",
+                "roles": ["actor"],
+            },
+            {
+                "uuid": "6ecc7a32-14a1-4da8-9881-bf81f0f09897",
+                "roles": ["actor"],
+            },
+            {
+                "uuid": "b1f1e8a6-e310-47d9-a93c-6a7b192bac0e",
+                "roles": ["actor"],
+            },
+        ],
+    }
+]
+
+SEARCH_FILMS_IN_CACHE = [
+    '{"id":"9f38323f-5912-40d2-a90c-b56899746f2a","full_name":"Chris Pine","films":null}'
+]
+
+PAGINATIONS_VALIDATION = {
+    "detail": [
+        {
+            "loc": ["query", "page_number"],
+            "msg": "ensure this value is greater than or equal to 1",
+            "type": "value_error.number.not_ge",
+            "ctx": {"limit_value": 1},
+        }
+    ]
+}
