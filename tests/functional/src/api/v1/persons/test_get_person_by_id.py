@@ -51,8 +51,8 @@ async def test_get_person_by_id(
     assert status == HTTPStatus.OK
     assert body == api_response
 
-    person_in_chache = await redis_client.get(person_id)
-    person_deserialize = orjson.loads(person_in_chache)
+    person_in_cache = await redis_client.get(person_id)
+    person_deserialize = orjson.loads(person_in_cache)
     assert person_deserialize == redis_response
 
 
