@@ -59,3 +59,111 @@ FILM_WITHOUT_RATING_AND_PERSONS = {
 FILM_WITHOUT_RATING_AND_PERSONS_CACHE = {
     'id': '32fcd689-3119-4225-8076-fdeabc553c61', 'title': 'Test Film', 'imdb_rating': None, 'description': 'This film about testers', 'genre': [{'id': '6d141ad2-d407-4252-bda4-95590aaf062a', 'name': 'Documentary'}], 'actors': [], 'writers': [], 'directors': []
 }
+
+SEARCH_FILMS_SORT_BY_RATING_ASC_RESPONSE = [
+    {
+        "uuid": "de3f7ec5-1652-49dc-bac0-f49afdbc925a",
+        "title": "Tell It to a Star",
+        "imdb_rating": 6.1
+    },
+    {
+        "uuid": "0352be33-bb3a-455b-80dd-444202dff23d",
+        "title": "A Five Star Life",
+        "imdb_rating": 6.3
+    },
+    {
+        "uuid": "b0752ea4-76fe-4a00-986d-71fb34f908cd",
+        "title": "The Blue Star Hotel",
+        "imdb_rating": 7.4
+    },
+    {
+        "uuid": "d895fded-2ea1-4889-b93e-971c58bee8e1",
+        "title": "Wishes on a Falling Star",
+        "imdb_rating": 8.5
+    }
+]
+
+SEARCH_FILMS_SORT_BY_RATING_ASC_IN_CACHE = [
+    '{"id":"de3f7ec5-1652-49dc-bac0-f49afdbc925a","title":"Tell It to a ' 'Star","imdb_rating":6.1}', '{"id":"0352be33-bb3a-455b-80dd-444202dff23d","title":"A Five Star ' 'Life","imdb_rating":6.3}', '{"id":"b0752ea4-76fe-4a00-986d-71fb34f908cd","title":"The Blue Star ' 'Hotel","imdb_rating":7.4}', '{"id":"d895fded-2ea1-4889-b93e-971c58bee8e1","title":"Wishes on a Falling ' 'Star","imdb_rating":8.5}'
+]
+
+SEARCH_FILMS_SORT_BY_TITLE_ASC_RESPONSE = [
+    {
+        "uuid": "0352be33-bb3a-455b-80dd-444202dff23d",
+        "title": "A Five Star Life",
+        "imdb_rating": 6.3
+    },
+    {
+        "uuid": "de3f7ec5-1652-49dc-bac0-f49afdbc925a",
+        "title": "Tell It to a Star",
+        "imdb_rating": 6.1
+    },
+    {
+        "uuid": "b0752ea4-76fe-4a00-986d-71fb34f908cd",
+        "title": "The Blue Star Hotel",
+        "imdb_rating": 7.4
+    },
+    {
+        "uuid": "d895fded-2ea1-4889-b93e-971c58bee8e1",
+        "title": "Wishes on a Falling Star",
+        "imdb_rating": 8.5
+    }
+]
+
+SEARCH_FILMS_SORT_BY_TITLE_ASC_IN_CACHE = [
+    '{"id":"0352be33-bb3a-455b-80dd-444202dff23d","title":"A Five Star Life","imdb_rating":6.3}', '{"id":"de3f7ec5-1652-49dc-bac0-f49afdbc925a","title":"Tell It to a Star","imdb_rating":6.1}', '{"id":"b0752ea4-76fe-4a00-986d-71fb34f908cd","title":"The Blue Star Hotel","imdb_rating":7.4}', '{"id":"d895fded-2ea1-4889-b93e-971c58bee8e1","title":"Wishes on a Falling Star","imdb_rating":8.5}'
+]
+
+SEARCH_FILMS_SORT_BY_RATING_DESC_RESPONSE = [
+    {
+        "uuid": "d895fded-2ea1-4889-b93e-971c58bee8e1",
+        "title": "Wishes on a Falling Star",
+        "imdb_rating": 8.5
+    },
+    {
+        "uuid": "b0752ea4-76fe-4a00-986d-71fb34f908cd",
+        "title": "The Blue Star Hotel",
+        "imdb_rating": 7.4
+    },
+    {
+        "uuid": "0352be33-bb3a-455b-80dd-444202dff23d",
+        "title": "A Five Star Life",
+        "imdb_rating": 6.3
+    },
+    {
+        "uuid": "de3f7ec5-1652-49dc-bac0-f49afdbc925a",
+        "title": "Tell It to a Star",
+        "imdb_rating": 6.1
+    }
+]
+
+SEARCH_FILMS_SORT_BY_RATING_DESC_IN_CACHE = [
+    '{"id":"d895fded-2ea1-4889-b93e-971c58bee8e1","title":"Wishes on a Falling '  'Star","imdb_rating":8.5}',  '{"id":"b0752ea4-76fe-4a00-986d-71fb34f908cd","title":"The Blue Star '  'Hotel","imdb_rating":7.4}',  '{"id":"0352be33-bb3a-455b-80dd-444202dff23d","title":"A Five Star '  'Life","imdb_rating":6.3}',  '{"id":"de3f7ec5-1652-49dc-bac0-f49afdbc925a","title":"Tell It to a '  'Star","imdb_rating":6.1}'
+]
+
+SEARCH_FILMS_SORT_BY_TITLE_DESC_RESPONSE = [
+    {
+        "uuid": "d895fded-2ea1-4889-b93e-971c58bee8e1",
+        "title": "Wishes on a Falling Star",
+        "imdb_rating": 8.5
+    },
+    {
+        "uuid": "b0752ea4-76fe-4a00-986d-71fb34f908cd",
+        "title": "The Blue Star Hotel",
+        "imdb_rating": 7.4
+    },
+    {
+        "uuid": "de3f7ec5-1652-49dc-bac0-f49afdbc925a",
+        "title": "Tell It to a Star",
+        "imdb_rating": 6.1
+    },
+    {
+        "uuid": "0352be33-bb3a-455b-80dd-444202dff23d",
+        "title": "A Five Star Life",
+        "imdb_rating": 6.3
+    }
+]
+
+SEARCH_FILMS_SORT_BY_TITLE_DESC_IN_CACHE = [
+    '{"id":"d895fded-2ea1-4889-b93e-971c58bee8e1","title":"Wishes on a Falling '  'Star","imdb_rating":8.5}',  '{"id":"b0752ea4-76fe-4a00-986d-71fb34f908cd","title":"The Blue Star '  'Hotel","imdb_rating":7.4}',  '{"id":"de3f7ec5-1652-49dc-bac0-f49afdbc925a","title":"Tell It to a '  'Star","imdb_rating":6.1}',  '{"id":"0352be33-bb3a-455b-80dd-444202dff23d","title":"A Five Star '  'Life","imdb_rating":6.3}'
+]
