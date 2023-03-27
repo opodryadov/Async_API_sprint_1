@@ -62423,5 +62423,29 @@
             "writers": [],
             "directors": []
         }
+    },
+    {
+        "_index": "movies",
+        "_type": "_doc",
+        "_id": "32fcd689-3119-4225-8076-fdeabc553c61",
+        "_score": 1.0,
+        "_source": {
+            "id": "32fcd689-3119-4225-8076-fdeabc553c61",
+            "imdb_rating": null,
+            "title": "Test Film",
+            "description": "This film about testers",
+            "genre": [
+                {
+                    "id": "6d141ad2-d407-4252-bda4-95590aaf062a",
+                    "name": "Documentary"
+                }
+            ],
+            "actors_names": [],
+            "writers_names": [],
+            "directors_names": [],
+            "actors": [],
+            "writers": [],
+            "directors": []
+        }
     }
 ]
