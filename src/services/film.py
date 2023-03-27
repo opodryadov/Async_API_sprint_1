@@ -16,10 +16,8 @@ class FilmService(Service):
     detail_model = Film
     model = FilmShort
 
-    async def get_all_films(
-        self, params: dict, genre: str
-    ) -> Optional[list[FilmShort]]:
-        params.update({"search_type": "films_genre", "genre": genre})
+    async def get_all_films(self, params: dict) -> Optional[list[FilmShort]]:
+        params.update({"search_type": "films_genre"})
         films = await self.get_list(params)
         if not films:
             return None
