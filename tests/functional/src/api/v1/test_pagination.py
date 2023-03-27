@@ -40,10 +40,6 @@ async def test_search_pagination(
 
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
-    "endpoint",
-    ("genres",),
-)
-@pytest.mark.parametrize(
     "page_number, page_size, records_per_page",
     (
         (1, 26, 26),
@@ -52,13 +48,12 @@ async def test_search_pagination(
 )
 async def test_genres_pagination(
     make_get_request,
-    endpoint,
     page_number,
     page_size,
     records_per_page,
 ):
     body, status = await make_get_request(
-        f"/api/v1/{endpoint}?page_number={page_number}&page_size={page_size}"
+        f"/api/v1/genres?page_number={page_number}&page_size={page_size}"
     )
     assert status == HTTPStatus.OK
     assert (len(body)) == records_per_page

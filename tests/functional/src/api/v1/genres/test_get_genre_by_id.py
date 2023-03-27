@@ -13,26 +13,16 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.mark.usefixtures("flush_redis")
-@pytest.mark.parametrize(
-    "genre_id, api_response, redis_response",
-    (
-        (
-            "0b105f87-e0a5-45dc-8ce7-f8632088f390",
-            GENRE_NAME,
-            CACHE_GENRE_NAME,
-        ),
-    ),
-)
-async def test_get_genre_by_id(
-    make_get_request, redis_client, genre_id, api_response, redis_response
-):
+async def test_get_genre_by_id(make_get_request, redis_client):
+    genre_id = "0b105f87-e0a5-45dc-8ce7-f8632088f390"
+
     body, status = await make_get_request(f"/api/v1/genres/{genre_id}")
     assert status == HTTPStatus.OK
-    assert body == api_response
+    assert body == GENRE_NAME
 
     genre_in_cache = await redis_client.get(genre_id)
     genre_deserialize = orjson.loads(genre_in_cache)
-    assert genre_deserialize == redis_response
+    assert genre_deserialize == CACHE_GENRE_NAME
 
 
 async def test_get_genre_not_found(make_get_request, redis_client):
