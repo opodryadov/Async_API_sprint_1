@@ -62,7 +62,7 @@ async def film_details(
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail="film not found"
+            status_code=HTTPStatus.NOT_FOUND, detail="Film not found"
         )
 
     return film
