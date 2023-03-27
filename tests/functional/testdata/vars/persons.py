@@ -157,36 +157,3 @@ SEARCH_FILMS_RESPONSE = [
 SEARCH_FILMS_IN_CACHE = [
     '{"id":"9f38323f-5912-40d2-a90c-b56899746f2a","full_name":"Chris Pine","films":null}'
 ]
-
-PAGINATIONS_VALIDATION_PAGE_NUMBER = {
-    "detail": [
-        {
-            "loc": ["query", "page_number"],
-            "msg": "ensure this value is greater than or equal to 1",
-            "type": "value_error.number.not_ge",
-            "ctx": {"limit_value": 1},
-        }
-    ]
-}
-
-PAGINATIONS_VALIDATION_PAGE_SIZE = {
-    "detail": [
-        {
-            "loc": ["query", "page_size"],
-            "msg": "ensure this value is less than or equal to 200",
-            "type": "value_error.number.not_le",
-            "ctx": {"limit_value": 200},
-        }
-    ]
-}
-
-PAGINATIONS_VALIDATION_PAGE_SIZE_NOT_GE = {
-    "detail": [
-        {
-            "ctx": {"limit_value": 1},
-            "loc": ["query", "page_size"],
-            "msg": "ensure this value is greater than or equal to 1",
-            "type": "value_error.number.not_ge",
-        }
-    ]
-}
