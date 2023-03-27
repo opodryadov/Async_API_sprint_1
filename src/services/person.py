@@ -17,6 +17,8 @@ class PersonService(Service):
 
     async def get_person_by_id(self, person_id) -> dict | None:
         person = await self.get_by_id(person_id)
+        if not person:
+            return
         person = await self._enrich_person(person)
         return person.dict()
 
