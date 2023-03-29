@@ -1012,7 +1012,7 @@ FANTASY_FILMS_IN_CACHE = [
     '{"id":"96198bec-04bf-4ac7-9538-cbf40d1e25db","title":"Star Wars: The Old Republic - Knights of the Fallen Empire","imdb_rating":8.7}',
 ]
 
-SEARCH_FILM_QUERY_RESPONSE_1 = [
+SEARCH_FILM_QUERY_TITLE_RESPONSE = [
     {
         "uuid": "35d4ecd5-0904-48bc-8989-dc355b86bfcd",
         "title": "When Star Wars Ruled the World",
@@ -1265,7 +1265,7 @@ SEARCH_FILM_QUERY_RESPONSE_1 = [
     },
 ]
 
-SEARCH_FILM_QUERY_IN_CACHE_1 = [
+SEARCH_FILM_QUERY_TITLE_IN_CACHE = [
     '{"id":"35d4ecd5-0904-48bc-8989-dc355b86bfcd","title":"When Star Wars Ruled the World","imdb_rating":8.1}',
     '{"id":"c7bd11a4-30bf-4077-a618-97c3e5525427","title":"The Characters of \'Star Wars\'","imdb_rating":6.7}',
     '{"id":"2a18ca80-d2b8-4037-be3c-0a3430992543","title":"Super Star Wars","imdb_rating":7.8}',
@@ -1318,7 +1318,7 @@ SEARCH_FILM_QUERY_IN_CACHE_1 = [
     '{"id":"d1099968-805e-4a2b-a2ec-18bbde1201ac","title":"Robot Chicken: Star Wars Episode II","imdb_rating":8.1}',
 ]
 
-SEARCH_FILM_QUERY_RESPONSE_2 = [
+SEARCH_FILM_QUERY_DESCRIPTION_RESPONSE = [
     {
         "uuid": "de3f7ec5-1652-49dc-bac0-f49afdbc925a",
         "title": "Tell It to a Star",
@@ -1341,7 +1341,7 @@ SEARCH_FILM_QUERY_RESPONSE_2 = [
     },
 ]
 
-SEARCH_FILM_QUERY_IN_CACHE_2 = [
+SEARCH_FILM_QUERY_DESCRIPTION_IN_CACHE = [
     '{"id":"de3f7ec5-1652-49dc-bac0-f49afdbc925a","title":"Tell It to a Star","imdb_rating":6.1}',
     '{"id":"b0752ea4-76fe-4a00-986d-71fb34f908cd","title":"The Blue Star Hotel","imdb_rating":7.4}',
     '{"id":"0352be33-bb3a-455b-80dd-444202dff23d","title":"A Five Star Life","imdb_rating":6.3}',

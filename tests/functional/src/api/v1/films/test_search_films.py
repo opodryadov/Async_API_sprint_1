@@ -4,10 +4,10 @@ import orjson
 import pytest
 
 from tests.functional.testdata.vars.films import (
-    SEARCH_FILM_QUERY_RESPONSE_1,
-    SEARCH_FILM_QUERY_IN_CACHE_1,
-    SEARCH_FILM_QUERY_RESPONSE_2,
-    SEARCH_FILM_QUERY_IN_CACHE_2,
+    SEARCH_FILM_QUERY_TITLE_RESPONSE,
+    SEARCH_FILM_QUERY_TITLE_IN_CACHE,
+    SEARCH_FILM_QUERY_DESCRIPTION_RESPONSE,
+    SEARCH_FILM_QUERY_DESCRIPTION_IN_CACHE,
     SEARCH_FILMS_WITHOUT_QUERY_RESPONSE,
     SEARCH_FILMS_WITHOUT_QUERY_IN_CACHE,
 )
@@ -23,14 +23,14 @@ pytestmark = pytest.mark.asyncio
         (
             "star",
             "1cacf91f2391fba91b03cc85ac913393",
-            SEARCH_FILM_QUERY_RESPONSE_1,
-            SEARCH_FILM_QUERY_IN_CACHE_1,
+            SEARCH_FILM_QUERY_TITLE_RESPONSE,
+            SEARCH_FILM_QUERY_TITLE_IN_CACHE,
         ),
         (
             "luxury",
             "0bbe14abf2a3eaf6ecd9152a8d4f661c",
-            SEARCH_FILM_QUERY_RESPONSE_2,
-            SEARCH_FILM_QUERY_IN_CACHE_2,
+            SEARCH_FILM_QUERY_DESCRIPTION_RESPONSE,
+            SEARCH_FILM_QUERY_DESCRIPTION_IN_CACHE,
         ),
         (
             "nevsky",
