@@ -1,8 +1,15 @@
 import logging
 from typing import TypeVar
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
+import backoff
+from elasticsearch import (
+    AsyncElasticsearch,
+    ConnectionError,
+    ConnectionTimeout,
+    NotFoundError,
+)
 
+from src.common.handlers import backoff_handler
 from src.common.storages.base import BaseDataSearch, BaseDataStorage
 
 
@@ -19,6 +26,13 @@ class EsStorageBase(BaseDataSearch, BaseDataStorage):
     def __init__(self, elastic: AsyncElasticsearch):
         self._elastic = elastic
 
+    @backoff.on_exception(
+        backoff.expo,
+        (ConnectionError, ConnectionTimeout,),
+        max_tries=10,
+        max_time=60,
+        on_backoff=backoff_handler,
+    )
     async def search_by_id(self, index: str, doc_id: str) -> dict | None:
         try:
             doc = await self._elastic.get(index=index, id=doc_id)
@@ -32,6 +46,13 @@ class EsStorageBase(BaseDataSearch, BaseDataStorage):
             return None
         return doc["_source"]
 
+    @backoff.on_exception(
+        backoff.expo,
+        (ConnectionError, ConnectionTimeout,),
+        max_tries=10,
+        max_time=60,
+        on_backoff=backoff_handler,
+    )
     async def search_by_query(self, *args, **kwargs) -> dict:
         docs = await self._elastic.search(*args, **kwargs)
         return docs["hits"]["hits"]

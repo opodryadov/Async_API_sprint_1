@@ -1,9 +1,11 @@
 import hashlib
 from typing import Any
 
+import backoff
 import orjson
-from aioredis import Redis
+from aioredis import BusyLoadingError, ConnectionError, Redis, TimeoutError
 
+from src.common.handlers import backoff_handler
 from src.common.storages.caches.base import BaseCache
 from src.common.storages.caches.consts import DEFAULT_TTL_IN_SECONDS
 from src.common.storages.caches.serializer import BaseSerializer
@@ -27,6 +29,13 @@ class RedisCacheBase(BaseCache, BaseSerializer):
     def deserialize(self, value: str) -> list:
         return orjson.loads(value)
 
+    @backoff.on_exception(
+        backoff.expo,
+        (BusyLoadingError, ConnectionError, TimeoutError),
+        max_tries=10,
+        max_time=60,
+        on_backoff=backoff_handler,
+    )
     async def get_from_cache(self, key: str) -> str | None:
         data = await self._redis.get(key)
         if not data:
@@ -34,6 +43,13 @@ class RedisCacheBase(BaseCache, BaseSerializer):
 
         return data
 
+    @backoff.on_exception(
+        backoff.expo,
+        (BusyLoadingError, ConnectionError, TimeoutError),
+        max_tries=10,
+        max_time=60,
+        on_backoff=backoff_handler,
+    )
     async def put_to_cache(self, key: str, value: bytes | str) -> None:
         await self._redis.set(
             key,
