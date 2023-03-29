@@ -96,7 +96,6 @@ async def write_test_data(es_client: AsyncElasticsearch):
 async def es_init(es_client: AsyncElasticsearch):
     await write_test_data(es_client)
 
-    # TODO: раскомментировать перед сдачей на ревью
-    # yield
-    #
-    # await flush_indexes(es_client)
+    yield
+
+    await flush_indexes(es_client)

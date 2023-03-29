@@ -15,7 +15,7 @@ pytestmark = pytest.mark.asyncio
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("persons/search",),
+    ("persons/search", "films", "films/search",),
 )
 @pytest.mark.parametrize(
     "page_number, page_size, records_per_page",
@@ -62,7 +62,7 @@ async def test_genres_pagination(
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("persons/search", "genres",),
+    ("persons/search", "genres", "films", "films/search"),
 )
 @pytest.mark.parametrize(
     "page_number, page_size, api_response",

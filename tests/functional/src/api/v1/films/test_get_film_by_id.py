@@ -31,7 +31,7 @@ pytestmark = pytest.mark.asyncio
     ),
 )
 async def test_get_film_by_id(
-    make_get_request, redis_client, film_id, api_response, redis_response
+    make_get_request, redis_client, film_id, api_response, redis_response,
 ):
     body, status = await make_get_request(f"/api/v1/films/{film_id}")
     assert status == HTTPStatus.OK

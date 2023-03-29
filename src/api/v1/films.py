@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from src.common.utils import query_params
+from src.common.utils import get_sort, query_params
 from src.models import Film, FilmShort
 from src.models.response import NotFound
 from src.services.film import FilmService, get_film_service
@@ -12,18 +12,26 @@ router = APIRouter()
 
 
 @router.get(
-    "/",
+    "",
     response_model=list[FilmShort],
     summary="Список фильмов",
-    description="Список фильмов с пагинацией, фильтрацией по жанрам и сортировкой по названию и рейтингу",
-    response_description="Список фильмов с UUID, названием и рейтингом",
+    description="Список фильмов с фильтрацией по жанрам",
+    response_description="Список фильмов",
 )
 async def list_films(
-    params: dict = Depends(query_params),
     genre: str | None = Query(default=""),
+    sort: str | None = Query(default=""),
+    page_number: int | None = Query(default=1, ge=1),
+    page_size: int | None = Query(default=50, ge=1, le=200),
     film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShort]:
-    films = await film_service.get_all_films(params, genre)
+    params = dict(
+        genre=genre,
+        sort=get_sort(sort),
+        page_number=page_number,
+        page_size=page_size
+    )
+    films = await film_service.get_all_films(params)
     if not films:
         return []
 
