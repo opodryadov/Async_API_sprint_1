@@ -11,7 +11,11 @@ redis: Optional[Redis] = None
 
 @backoff.on_exception(
     backoff.expo,
-    (BusyLoadingError, ConnectionError, TimeoutError),
+    (
+        BusyLoadingError,
+        ConnectionError,
+        TimeoutError,
+    ),
     max_tries=10,
     max_time=60,
     on_backoff=backoff_handler,

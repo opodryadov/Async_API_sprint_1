@@ -28,7 +28,10 @@ class EsStorageBase(BaseDataSearch, BaseDataStorage):
 
     @backoff.on_exception(
         backoff.expo,
-        (ConnectionError, ConnectionTimeout,),
+        (
+            ConnectionError,
+            ConnectionTimeout,
+        ),
         max_tries=10,
         max_time=60,
         on_backoff=backoff_handler,
@@ -48,7 +51,10 @@ class EsStorageBase(BaseDataSearch, BaseDataStorage):
 
     @backoff.on_exception(
         backoff.expo,
-        (ConnectionError, ConnectionTimeout,),
+        (
+            ConnectionError,
+            ConnectionTimeout,
+        ),
         max_tries=10,
         max_time=60,
         on_backoff=backoff_handler,
