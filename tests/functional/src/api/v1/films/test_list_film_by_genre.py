@@ -51,8 +51,7 @@ async def test_list_film_by_genre(
     for i in range(0, -2, -1):
         documents = await es_client.get(index="movies", id=body[i]["uuid"])
         docs = [i for i in documents["_source"]["genre"]]
-        genres = [Genre(**doc) for doc in docs]
-        assert genre in genres
+        assert genre in docs
 
     films_in_cache = await redis_client.get(redis_key)
     films_deserialize = orjson.loads(films_in_cache)
