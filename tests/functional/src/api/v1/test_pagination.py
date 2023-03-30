@@ -15,7 +15,11 @@ pytestmark = pytest.mark.asyncio
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("persons/search", "films", "films/search",),
+    (
+        "persons/search",
+        "films",
+        "films/search",
+    ),
 )
 @pytest.mark.parametrize(
     "page_number, page_size, records_per_page",

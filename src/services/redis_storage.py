@@ -1,7 +1,7 @@
 from functools import lru_cache
 
-from redis.asyncio import Redis
 from fastapi import Depends
+from redis.asyncio import Redis
 
 from src.common.connectors.redis import get_redis
 from src.common.storages.caches.redis import RedisCacheBase

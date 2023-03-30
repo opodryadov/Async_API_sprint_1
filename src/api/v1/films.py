@@ -29,7 +29,7 @@ async def list_films(
         genre=genre,
         sort=get_sort(sort),
         page_number=page_number,
-        page_size=page_size
+        page_size=page_size,
     )
     films = await film_service.get_all_films(params)
     if not films:

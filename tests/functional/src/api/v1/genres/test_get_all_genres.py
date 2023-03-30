@@ -3,10 +3,7 @@ from http import HTTPStatus
 import orjson
 import pytest
 
-from tests.functional.testdata.vars.genres import (
-    ALL_GENRES,
-    CACHE_ALL_GENRES,
-)
+from tests.functional.testdata.vars.genres import ALL_GENRES, CACHE_ALL_GENRES
 
 
 pytestmark = pytest.mark.asyncio

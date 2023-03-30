@@ -4,12 +4,12 @@ import orjson
 import pytest
 
 from tests.functional.testdata.vars.films import (
-    SEARCH_FILM_QUERY_TITLE_RESPONSE,
-    SEARCH_FILM_QUERY_TITLE_IN_CACHE,
-    SEARCH_FILM_QUERY_DESCRIPTION_RESPONSE,
     SEARCH_FILM_QUERY_DESCRIPTION_IN_CACHE,
-    SEARCH_FILMS_WITHOUT_QUERY_RESPONSE,
+    SEARCH_FILM_QUERY_DESCRIPTION_RESPONSE,
+    SEARCH_FILM_QUERY_TITLE_IN_CACHE,
+    SEARCH_FILM_QUERY_TITLE_RESPONSE,
     SEARCH_FILMS_WITHOUT_QUERY_IN_CACHE,
+    SEARCH_FILMS_WITHOUT_QUERY_RESPONSE,
 )
 
 
@@ -66,8 +66,10 @@ async def test_search_films(
             documents = await es_client.get(index="movies", id=body[i]["uuid"])
             film_title = documents["_source"]["title"]
             film_description = documents["_source"]["description"]
-            assert query[:3].lower() in film_title.lower() \
-                   or query[:3].lower() in film_description.lower()
+            assert (
+                query[:3].lower() in film_title.lower()
+                or query[:3].lower() in film_description.lower()
+            )
 
     films_in_cache = await redis_client.get(redis_key)
     if films_in_cache:
