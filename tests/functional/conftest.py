@@ -3,10 +3,10 @@ import json
 import logging
 
 import aiohttp
-import aioredis
 import pytest
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from redis import asyncio as aioredis
 
 from tests.functional.core import test_settings
 from tests.functional.testdata.consts import INDEXES

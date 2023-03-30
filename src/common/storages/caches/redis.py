@@ -3,7 +3,12 @@ from typing import Any
 
 import backoff
 import orjson
-from aioredis import BusyLoadingError, ConnectionError, Redis, TimeoutError
+from redis.asyncio import (
+    BusyLoadingError,
+    ConnectionError,
+    Redis,
+    TimeoutError,
+)
 
 from src.common.handlers import backoff_handler
 from src.common.storages.caches.base import BaseCache

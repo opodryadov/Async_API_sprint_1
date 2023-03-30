@@ -1,7 +1,7 @@
-import aioredis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from redis import asyncio as aioredis
 
 from src.api.v1 import films, genres, persons
 from src.common.connectors import elastic, redis

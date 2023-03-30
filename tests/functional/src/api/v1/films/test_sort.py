@@ -4,16 +4,16 @@ import orjson
 import pytest
 
 from tests.functional.testdata.vars.sort import (
-    SORT_FILMS_BY_TITLE_ASC_RESPONSE,
-    SORT_FILMS_BY_TITLE_ASC_IN_CACHE,
-    SORT_FILMS_BY_TITLE_DESC_RESPONSE,
-    SORT_FILMS_BY_TITLE_DESC_IN_CACHE,
-    SORT_FILMS_BY_RATING_ASC_RESPONSE,
-    SORT_FILMS_BY_RATING_ASC_IN_CACHE,
-    SORT_FILMS_BY_RATING_DESC_RESPONSE,
-    SORT_FILMS_BY_RATING_DESC_IN_CACHE,
-    FILMS_WITHOUT_SORT_RESPONSE,
     FILMS_WITHOUT_SORT_IN_CACHE,
+    FILMS_WITHOUT_SORT_RESPONSE,
+    SORT_FILMS_BY_RATING_ASC_IN_CACHE,
+    SORT_FILMS_BY_RATING_ASC_RESPONSE,
+    SORT_FILMS_BY_RATING_DESC_IN_CACHE,
+    SORT_FILMS_BY_RATING_DESC_RESPONSE,
+    SORT_FILMS_BY_TITLE_ASC_IN_CACHE,
+    SORT_FILMS_BY_TITLE_ASC_RESPONSE,
+    SORT_FILMS_BY_TITLE_DESC_IN_CACHE,
+    SORT_FILMS_BY_TITLE_DESC_RESPONSE,
 )
 
 
@@ -23,7 +23,10 @@ pytestmark = pytest.mark.asyncio
 @pytest.mark.usefixtures("flush_redis")
 @pytest.mark.parametrize(
     "endpoint",
-    ("films", "films/search",),
+    (
+        "films",
+        "films/search",
+    ),
 )
 @pytest.mark.parametrize(
     "sort, redis_key, api_response, redis_response",
@@ -75,9 +78,7 @@ async def test_sort_list_films(
     api_response,
     redis_response,
 ):
-    body, status = await make_get_request(
-        f"/api/v1/{endpoint}?sort={sort}"
-    )
+    body, status = await make_get_request(f"/api/v1/{endpoint}?sort={sort}")
     assert status == HTTPStatus.OK
     assert body == api_response
 

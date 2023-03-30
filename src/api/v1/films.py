@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from src.common.utils import get_sort, query_params
+from src.common.utils import PaginateQueryParams, get_sort
 from src.models import Film, FilmShort
 from src.models.response import NotFound
 from src.services.film import FilmService, get_film_service
@@ -19,17 +19,26 @@ router = APIRouter()
     response_description="Список фильмов",
 )
 async def list_films(
-    genre: str | None = Query(default=""),
-    sort: str | None = Query(default=""),
-    page_number: int | None = Query(default=1, ge=1),
-    page_size: int | None = Query(default=50, ge=1, le=200),
+    genre: str
+    | None = Query(
+        "",
+        title="UUID жанра",
+        description="UUID жанра",
+    ),
+    sort: str
+    | None = Query(
+        "",
+        title="Сортировка",
+        description="Сортировка (имя/рейтинг)",
+    ),
+    pagination: PaginateQueryParams = Depends(),
     film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShort]:
     params = dict(
         genre=genre,
         sort=get_sort(sort),
-        page_number=page_number,
-        page_size=page_size
+        page_number=pagination.page_number,
+        page_size=pagination.page_size,
     )
     films = await film_service.get_all_films(params)
     if not films:
@@ -46,9 +55,27 @@ async def list_films(
     response_description="Результат поиска",
 )
 async def search_films(
-    params: dict = Depends(query_params),
+    query: str
+    | None = Query(
+        "",
+        title="Слово для поиска",
+        description="Поиск по слову в названии/описании",
+    ),
+    sort: str
+    | None = Query(
+        default="",
+        title="Сортировка",
+        description="Сортировка (имя/рейтинг)",
+    ),
+    pagination: PaginateQueryParams = Depends(),
     film_service: FilmService = Depends(get_film_service),
 ) -> list[FilmShort]:
+    params = dict(
+        query=query,
+        sort=get_sort(sort),
+        page_number=pagination.page_number,
+        page_size=pagination.page_size,
+    )
     films = await film_service.search_films(params)
     if not films:
         return []

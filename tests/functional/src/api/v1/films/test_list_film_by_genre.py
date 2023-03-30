@@ -5,10 +5,10 @@ import pytest
 
 from src.models.genre import Genre
 from tests.functional.testdata.vars.films import (
-    COMEDY_FILMS_RESPONSE,
     COMEDY_FILMS_IN_CACHE,
-    FANTASY_FILMS_RESPONSE,
+    COMEDY_FILMS_RESPONSE,
     FANTASY_FILMS_IN_CACHE,
+    FANTASY_FILMS_RESPONSE,
 )
 
 
@@ -42,9 +42,7 @@ async def test_list_film_by_genre(
     api_response,
     redis_response,
 ):
-    body, status = await make_get_request(
-        f"/api/v1/films?genre={genre.id}"
-    )
+    body, status = await make_get_request(f"/api/v1/films?genre={genre.id}")
     assert status == HTTPStatus.OK
     assert body == api_response
 
