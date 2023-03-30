@@ -1,4 +1,3 @@
-import hashlib
 from typing import Any
 
 import backoff
@@ -24,9 +23,8 @@ class RedisCacheBase(BaseCache, BaseSerializer):
         self._redis = redis
 
     def get_key(self, *args, **kwargs) -> str:
-        return hashlib.md5(
-            f"{self.cache_prefix}:{self.__class__.__name__.encode('UTF-8')}:{args}:{kwargs}".encode()
-        ).hexdigest()
+        params = "::".join([str(arg) for arg in args if arg])
+        return f"{self.cache_prefix}::{self.__class__.__name__}::{params}"
 
     def serialize(self, value: list[dict[str, Any]] | list[str]) -> bytes:
         return orjson.dumps(value)

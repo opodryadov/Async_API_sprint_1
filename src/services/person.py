@@ -62,7 +62,7 @@ class PersonService(Service):
     async def _get_films_by_role(
         self, person_id: str, role: str
     ) -> list[Film]:
-        key = self._redis_storage.get_key(dict(person_id=person_id, role=role))
+        key = self._redis_storage.get_key(person_id, role)
         movies = await self._redis_storage.get_from_cache(key=key)
         if movies:
             movies_deserialize = self._redis_storage.deserialize(movies)

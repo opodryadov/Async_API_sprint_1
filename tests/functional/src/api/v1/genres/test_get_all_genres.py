@@ -11,7 +11,7 @@ pytestmark = pytest.mark.asyncio
 
 @pytest.mark.usefixtures("flush_redis")
 async def test_get_all_genres(make_get_request, redis_client):
-    redis_key = "bff0b4bf49e1bf3ff01d8b1fc8a11ca1"
+    redis_key = "genres::GenreRedisStorage::1::50"
 
     body, status = await make_get_request("/api/v1/genres")
     assert status == HTTPStatus.OK
