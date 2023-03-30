@@ -9,7 +9,7 @@ from src.models.search import IndexName, ModelSearchQuery
 BaseModelType = TypeVar("BaseModelType", bound="BaseModel")
 
 
-class BaseService:
+class BaseService(abc.ABC):
     @abc.abstractmethod
     async def get_by_id(self, item_id: str):
         pass
