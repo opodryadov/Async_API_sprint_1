@@ -1,4 +1,4 @@
-import aioredis
+from redis import asyncio as aioredis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse

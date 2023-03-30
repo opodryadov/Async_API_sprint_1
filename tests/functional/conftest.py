@@ -3,8 +3,8 @@ import json
 import logging
 
 import aiohttp
-import aioredis
 import pytest
+from redis import asyncio as aioredis
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 

@@ -1,7 +1,12 @@
 from typing import Optional
 
 import backoff
-from aioredis import BusyLoadingError, ConnectionError, Redis, TimeoutError
+from redis.asyncio import (
+    BusyLoadingError,
+    ConnectionError,
+    Redis,
+    TimeoutError,
+)
 
 from src.common.handlers import backoff_handler
 
