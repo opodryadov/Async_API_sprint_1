@@ -1,8 +1,9 @@
 import logging
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 
+from src.common.utils import PaginateQueryParams
 from src.models import Genre
 from src.models.response import NotFound
 from src.services.genre import GenreService, get_genre_service
@@ -22,10 +23,12 @@ logger = logging.getLogger(__name__)
 )
 async def list_genres(
     genre_service: GenreService = Depends(get_genre_service),
-    page_number: int | None = Query(default=1, ge=1),
-    page_size: int | None = Query(default=50, ge=1, le=200),
+    pagination: PaginateQueryParams = Depends(),
 ) -> list[dict]:
-    params = dict(page_number=page_number, page_size=page_size)
+    params = dict(
+        page_number=pagination.page_number,
+        page_size=pagination.page_size,
+    )
     genres = await genre_service.get_list(params)
     if not genres:
         logger.warning("Was not a single genre")

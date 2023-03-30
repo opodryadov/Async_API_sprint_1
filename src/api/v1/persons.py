@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from src.common.utils import PaginateQueryParams
 from src.models import Person, PersonFilm
 from src.models.response import NotFound
 from src.services.person import PersonService, get_person_service
@@ -21,12 +22,20 @@ logger = logging.getLogger(__name__)
     response_description="Результат поиска",
 )
 async def search_persons(
-    query: str | None = Query(default=""),
-    page_number: int | None = Query(default=1, ge=1),
-    page_size: int | None = Query(default=50, ge=1, le=200),
+    query: str
+    | None = Query(
+        "",
+        title="Имя/фамилия для поиска",
+        description="Поиск по имени/фамилии",
+    ),
+    pagination: PaginateQueryParams = Depends(),
     person_service: PersonService = Depends(get_person_service),
 ) -> list[dict]:
-    params = dict(query=query, page_number=page_number, page_size=page_size)
+    params = dict(
+        query=query,
+        page_number=pagination.page_number,
+        page_size=pagination.page_size,
+    )
     persons = await person_service.person_search(params)
     if not persons:
         return []
