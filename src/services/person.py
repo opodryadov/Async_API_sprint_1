@@ -6,14 +6,24 @@ from src.common.storages.caches.redis import RedisCacheBase
 from src.models import Film, Person, PersonRole
 from src.models.search import IndexName
 from src.services.base import Service
-from src.services.es_storage import EsStorageBase, get_person_elastic_storage
-from src.services.redis_storage import get_person_redis_storage
+from src.services.es_storage import PersonEsStorage, get_person_elastic_storage
+from src.services.redis_storage import (
+    PersonRedisStorage,
+    get_person_redis_storage,
+)
 
 
 class PersonService(Service):
     index_name = IndexName.PERSONS.value
     detail_model = Person
     model = Person
+
+    def __init__(
+        self, redis_storage: RedisCacheBase, es_storage: PersonEsStorage
+    ):
+        super().__init__(redis_storage, es_storage)
+        self._redis_storage = redis_storage
+        self._es_storage = es_storage
 
     async def get_person_by_id(self, person_id) -> dict | None:
         person = await self.get_by_id(person_id)
@@ -52,7 +62,7 @@ class PersonService(Service):
     async def _get_films_by_role(
         self, person_id: str, role: str
     ) -> list[Film]:
-        key = self._redis_storage.get_key(dict(person_id=person_id, role=role))
+        key = self._redis_storage.get_key(person_id, role)
         movies = await self._redis_storage.get_from_cache(key=key)
         if movies:
             movies_deserialize = self._redis_storage.deserialize(movies)
@@ -105,7 +115,7 @@ class PersonService(Service):
 
 @lru_cache()
 def get_person_service(
-    redis: RedisCacheBase = Depends(get_person_redis_storage),
-    elastic: EsStorageBase = Depends(get_person_elastic_storage),
+    redis: PersonRedisStorage = Depends(get_person_redis_storage),
+    elastic: PersonEsStorage = Depends(get_person_elastic_storage),
 ) -> PersonService:
     return PersonService(redis, elastic)

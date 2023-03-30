@@ -83,7 +83,7 @@ async def test_genres_pagination(
         ),
         (
             1,
-            250,
+            501,
             PAGINATION_VALIDATION_PAGE_SIZE,
         ),
         (

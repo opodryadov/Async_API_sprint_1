@@ -9,7 +9,7 @@ from src.models.search import IndexName, ModelSearchQuery
 BaseModelType = TypeVar("BaseModelType", bound="BaseModel")
 
 
-class BaseService:
+class BaseService(abc.ABC):
     @abc.abstractmethod
     async def get_by_id(self, item_id: str):
         pass
@@ -45,7 +45,7 @@ class Service(BaseService):
 
     async def get_list(self, params: dict) -> list[BaseModelType]:
         search_query = self.get_search_query(params)
-        key = self._redis_storage.get_key(search_query)
+        key = self._redis_storage.get_key(*params.values())
         items = await self._redis_storage.get_from_cache(key=key)
         if items:
             items_deserialize = self._redis_storage.deserialize(items)

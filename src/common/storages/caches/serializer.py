@@ -2,7 +2,7 @@ import abc
 from typing import Any
 
 
-class BaseSerializer:
+class BaseSerializer(abc.ABC):
     @abc.abstractmethod
     def serialize(self, value: Any):
         """Сериализация"""

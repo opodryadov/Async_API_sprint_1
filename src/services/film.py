@@ -3,12 +3,11 @@ from typing import Optional
 
 from fastapi import Depends
 
-from src.common.storages.caches.redis import RedisCacheBase
 from src.models import Film, FilmShort
 from src.models.search import IndexName
 from src.services.base import Service
-from src.services.es_storage import EsStorageBase, get_film_elastic_storage
-from src.services.redis_storage import get_film_redis_storage
+from src.services.es_storage import FilmEsStorage, get_film_elastic_storage
+from src.services.redis_storage import FilmRedisStorage, get_film_redis_storage
 
 
 class FilmService(Service):
@@ -35,7 +34,7 @@ class FilmService(Service):
 
 @lru_cache()
 def get_film_service(
-    redis: RedisCacheBase = Depends(get_film_redis_storage),
-    elastic: EsStorageBase = Depends(get_film_elastic_storage),
+    redis: FilmRedisStorage = Depends(get_film_redis_storage),
+    elastic: FilmEsStorage = Depends(get_film_elastic_storage),
 ) -> FilmService:
     return FilmService(redis, elastic)
