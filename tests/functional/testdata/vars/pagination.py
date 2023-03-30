@@ -13,9 +13,9 @@ PAGINATION_VALIDATION_PAGE_SIZE = {
     "detail": [
         {
             "loc": ["query", "page_size"],
-            "msg": "ensure this value is less than or equal to 200",
+            "msg": "ensure this value is less than or equal to 500",
             "type": "value_error.number.not_le",
-            "ctx": {"limit_value": 200},
+            "ctx": {"limit_value": 500},
         }
     ]
 }
