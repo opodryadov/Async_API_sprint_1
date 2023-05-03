@@ -1,6 +1,7 @@
 import enum
+from typing import List
 
-from pydantic import BaseModel
+from src.models import ORDJSONModelMixin
 
 
 class RoleType(str, enum.Enum):
@@ -9,6 +10,11 @@ class RoleType(str, enum.Enum):
     ROLE_SUBSCRIBER = "ROLE_SUBSCRIBER"
 
 
-class Role(BaseModel):
+class Role(ORDJSONModelMixin):
     role_id: str
     name: str
+
+
+class UserRoleResponse(ORDJSONModelMixin):
+    user_id: str
+    roles: List[RoleType] = list()

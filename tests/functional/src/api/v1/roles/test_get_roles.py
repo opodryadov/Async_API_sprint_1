@@ -23,7 +23,9 @@ GET_ALL_ROLES_RESPONSE = {
 }
 
 
-async def test_get_all_roles_ok(test_client, monkeypatch, mock_auth_api_ok):
+async def test_get_all_roles_ok(
+    test_client, monkeypatch, mock_auth_api_list_roles_ok
+):
     res = await test_client.get(
         "/api/v1/roles", headers={"X-TOKEN": test_settings.auth_api_srv_token}
     )
