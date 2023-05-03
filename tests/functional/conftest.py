@@ -135,3 +135,11 @@ async def mock_auth_api_list_roles_ok(mock_external_services):
         json=GET_ALL_ROLES_RESPONSE,
         status_code=HTTPStatus.OK,
     )
+
+
+@pytest.fixture
+async def mock_auth_api_list_roles_500(mock_external_services):
+    mock_external_services.get(re.compile(".*/api/srv/roles")).respond(
+        json={"error": None, "result": [], "success": True},
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+    )

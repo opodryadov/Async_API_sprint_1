@@ -18,3 +18,12 @@ async def test_get_all_roles_ok(
     assert res.status_code == HTTPStatus.OK
     body = res.json()
     assert body == GET_ALL_ROLES_RESPONSE.get("result")
+
+
+async def test_get_all_roles_error_500(
+    test_client, monkeypatch, mock_auth_api_list_roles_500
+):
+    res = await test_client.get(
+        "/api/v1/roles", headers={"X-TOKEN": test_settings.auth_api_srv_token}
+    )
+    assert res.status_code == HTTPStatus.OK
