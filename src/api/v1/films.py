@@ -2,9 +2,12 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from src.common.collections import get_in
+from src.common.decode_auth_token import get_decoded_data
 from src.common.utils import PaginateQueryParams, get_sort
 from src.models import Film, FilmShort
 from src.models.response import NotFound
+from src.models.role import RoleType
 from src.services.film import FilmService, get_film_service
 
 
@@ -92,8 +95,16 @@ async def search_films(
     response_description="Подробная информация о фильме",
 )
 async def film_details(
-    film_id: str, film_service: FilmService = Depends(get_film_service)
+    film_id: str,
+    film_service: FilmService = Depends(get_film_service),
+    user_data=Depends(get_decoded_data),
 ) -> dict:
+    roles = get_in(user_data, "roles")
+    if not roles or RoleType.ROLE_SUBSCRIBER not in roles:
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail="No access to watching films",
+        )
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(

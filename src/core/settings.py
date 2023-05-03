@@ -20,6 +20,11 @@ class Settings(BaseSettings):
 
     log_format: str = Field(env="LOG_FORMAT", default="INFO")
 
+    auth_api_srv_token: str = Field(env="AUTH_API_SRV_TOKEN", default="test")
+    auth_api_url: str = Field(
+        env="AUTH_API_URL", default="http://0.0.0.0:8000"
+    )
+
     class Config:
         env_file: str = ".env"
         env_file_encoding: str = "utf-8"

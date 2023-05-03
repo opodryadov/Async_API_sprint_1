@@ -1,15 +1,20 @@
 import asyncio
 import json
 import logging
+import re
+from http import HTTPStatus
 
 import aiohttp
 import pytest
+import respx
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from httpx import AsyncClient
 from redis import asyncio as aioredis
 
 from tests.functional.core import test_settings
 from tests.functional.testdata.consts import INDEXES
+from tests.functional.testdata.vars.roles import GET_ALL_ROLES_RESPONSE
 
 
 logger = logging.getLogger(__name__)
@@ -99,3 +104,42 @@ async def es_init(es_client: AsyncElasticsearch):
     yield
 
     await flush_indexes(es_client)
+
+
+@pytest.fixture
+async def test_app():
+    from src.main import app
+
+    await app.router.startup()
+    try:
+        yield app
+    finally:
+        await app.router.shutdown()
+
+
+@pytest.fixture
+async def test_client(test_app):
+    async with AsyncClient(app=test_app, base_url="http://test") as client:
+        yield client
+
+
+@pytest.fixture
+def mock_external_services():
+    with respx.mock(base_url="http://0.0.0.0/") as respx_mock:
+        yield respx_mock
+
+
+@pytest.fixture
+async def mock_auth_api_list_roles_ok(mock_external_services):
+    mock_external_services.get(re.compile(".*/api/srv/roles")).respond(
+        json=GET_ALL_ROLES_RESPONSE,
+        status_code=HTTPStatus.OK,
+    )
+
+
+@pytest.fixture
+async def mock_auth_api_list_roles_500(mock_external_services):
+    mock_external_services.get(re.compile(".*/api/srv/roles")).respond(
+        json={"error": None, "result": [], "success": True},
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+    )
