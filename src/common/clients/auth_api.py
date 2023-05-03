@@ -57,7 +57,7 @@ class AuthApiClient(AsyncClient):
     async def check_permissions_user_srv(
         self, user_id: str
     ) -> Optional[Dict[str, Any]]:
-        """Удалить у пользователя роль."""
+        """Список ролей пользователя."""
 
         url = "/api/srv/roles/check_permissions"
         response_body = await self.get(
