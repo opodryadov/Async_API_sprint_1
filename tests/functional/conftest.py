@@ -13,10 +13,8 @@ from httpx import AsyncClient
 from redis import asyncio as aioredis
 
 from tests.functional.core import test_settings
-from tests.functional.src.api.v1.roles.test_get_roles import (
-    GET_ALL_ROLES_RESPONSE,
-)
 from tests.functional.testdata.consts import INDEXES
+from tests.functional.testdata.vars.roles import GET_ALL_ROLES_RESPONSE
 
 
 logger = logging.getLogger(__name__)
