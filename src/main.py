@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis import asyncio as aioredis
 
-from src.api.v1 import films, genres, persons
+from src.api.v1 import films, genres, persons, roles
 from src.common.connectors import elastic, redis
 from src.core import settings
 
@@ -40,3 +40,4 @@ async def shutdown():
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
+app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])
